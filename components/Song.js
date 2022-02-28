@@ -1,11 +1,32 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react'
-import useSpotify from '../hooks/useSpotify'
+import { useRecoilState } from 'recoil';
+import useSpotify from '../customHooks/useSpotify'
 import { convertMsToTime } from '../lib/time'
+import { currentTrackIdState, isPlayingState } from '../globalState/songAtom'
 
 function Song({ order, track }) {
-    const spotifyApi = useSpotify()
+    const spotifyApi = useSpotify();
+    const [currentTrackId, setCurrentTrackId] = useRecoilState(currentTrackIdState);
+    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
+
+    const playSong = () => {
+        setCurrentTrackId(track.id);
+        setIsPlaying(true);
+        console.log(track.uri)
+        try {
+            spotifyApi.play({
+                uris: [track.uri]
+            })
+        } catch (err) {
+            console.log(err)
+        }
+
+    }
     return (
-        <div className='grid grid-cols-2 text-gray-500 py-4 px-5 hover:bg-gray-900 cursor-pointer rounded-lg'>
+        <div
+            onClick={playSong}
+            className='grid grid-cols-2 text-gray-500 py-4 px-5 hover:bg-gray-900 cursor-pointer rounded-lg'>
             <div className='flex items-center space-x-4'>
                 <p>{order + 1}</p>
                 <img

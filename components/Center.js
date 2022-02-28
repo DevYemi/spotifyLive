@@ -4,7 +4,7 @@ import { ChevronDownIcon } from '@heroicons/react/outline';
 import { shuffle } from 'lodash'
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { playlistsIdState, playlistState } from '../globalState/playlistsAtom';
-import useSpotify from '../hooks/useSpotify';
+import useSpotify from '../customHooks/useSpotify';
 import Songs from '../components/Songs'
 
 const colors = [

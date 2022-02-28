@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { HomeIcon, SearchIcon, LibraryIcon, PlusCircleIcon, HeartIcon, RssIcon } from '@heroicons/react/outline'
 import { signOut, useSession } from 'next-auth/react'
-import useSpotify from './../hooks/useSpotify'
+import useSpotify from '../customHooks/useSpotify'
 import { useRecoilState } from 'recoil';
 import { playlistsIdState } from '../globalState/playlistsAtom'
 
@@ -11,19 +11,22 @@ function Sidebar() {
     const [playlists, setPlaylists] = useState([]);
     const [playlistId, setPlaylistId] = useRecoilState(playlistsIdState);
 
-    useEffect(async () => {
-        try {
-            if (spotifyApi.getAccessToken()) {
-                const data = await spotifyApi.getUserPlaylists();
-                setPlaylists(data.body.items);
+    useEffect(() => {
+        const getUserPlaylists = async () => {
+            try {
+                if (spotifyApi.getAccessToken()) {
+                    const data = await spotifyApi.getUserPlaylists();
+                    setPlaylists(data.body.items);
+                }
+            } catch (error) {
+                console.log(error);
             }
-        } catch (error) {
-            console.log(error);
         }
+        getUserPlaylists();
 
     }, [session, spotifyApi])
     return (
-        <div className='text-gray-500 p-5 text-xs border-r border-gray-900 overflow-y-scroll h-screen scrollbar-hide hidden sm:max-w-[12rem] lg:max-w-[15rem] lg:text-sm md:inline-flex '>
+        <div className='text-gray-500 p-5 text-xs border-r border-gray-900 overflow-y-scroll h-[85vh] scrollbar-hide hidden sm:max-w-[12rem] lg:max-w-[15rem] lg:text-sm md:inline-flex '>
             <div className='space-y-4'>
                 <button className='flex items-center space-x-2 hover:text-white'>
                     <HomeIcon className='h-5 w-5' />
