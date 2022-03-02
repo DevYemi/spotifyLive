@@ -1,21 +1,8 @@
-import Sidebar from './../components/Sidebar'
-import Center from './../components/Center'
+import PlaylistInfo from '../components/PlaylistInfo'
 import { getSession } from 'next-auth/react';
-import Player from '../components/Player'
 
-const Home = ({ playlistDetailsServer }) => {
-
-  return (
-    <div className="bg-black h-screen overflow-hidden">
-      <main className='flex'>
-        <Sidebar />
-        <Center />
-      </main>
-      <div className='sticky bottom-0'>
-        <Player />
-      </div>
-    </div>
-  )
+const Home = () => {
+  return <PlaylistInfo />
 }
 
 export default Home

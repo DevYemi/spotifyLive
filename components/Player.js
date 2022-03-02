@@ -9,14 +9,15 @@ import { debounce } from "lodash"
 import { FastForwardIcon, PauseIcon, PlayIcon, RewindIcon, SwitchHorizontalIcon, VolumeOffIcon, VolumeUpIcon } from '@heroicons/react/outline';
 
 function Player() {
-    const spotifyApi = useSpotify();
-    const { data: session } = useSession();
-    const [currentTrackId, setCurrentTrackId] = useRecoilState(currentTrackIdState);
-    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
-    const [volume, setVolume] = useState(50);
-    const songInfo = useSongInfo();
+    const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
+    const { data: session } = useSession(); // get the current logged in user session
+    const [currentTrackId, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
+    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
+    const [volume, setVolume] = useState(50); // keeps state for the current volume range the user is on
+    const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
 
     const handlePlayAndPause = async () => {
+        // handle pause and play event in the music player
         const data = await spotifyApi.getMyCurrentPlaybackState();
         if (data.body.is_playing) {
             spotifyApi.pause();
@@ -27,21 +28,25 @@ function Player() {
         }
     }
     const debouncedAdjustVolume = useCallback((volume) => {
+        // debounced function created with lodash
         const debouncedReturnedFromLodash = debounce((volume) => {
             spotifyApi.setVolume(volume);
         }, 500);
         debouncedReturnedFromLodash(volume);
-    }, [spotifyApi])
+    }, [spotifyApi]);
+
     useEffect(() => {
+        // handles event when the volume range has been changed in the UI
         if (volume > 0 && volume < 100) {
             debouncedAdjustVolume(volume)
         }
-    }, [volume, debouncedAdjustVolume])
+    }, [volume, debouncedAdjustVolume]);
+
     useEffect(() => {
+        // gets the current playing song from spotify if there isnt one in the currentTrackId global state
         const fetchCurrentSong = async () => {
             if (!songInfo) {
                 const data = await spotifyApi.getMyCurrentPlayingTrack();
-                console.log(`NOW PLAYING ${data.body?.item}`);
                 setCurrentTrackId(data.body?.item?.id);
 
 

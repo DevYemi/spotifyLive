@@ -5,11 +5,14 @@ import spotifyApi, { LOGIN_URL } from "../../../lib/spotify"
 
 async function refreshAccessToken(token) {
     try {
+        // add accessToken and refreshToken to the spotifyApi
         spotifyApi.setAccessToken(token.accessToken);
         spotifyApi.setRefreshToken(token.refreshToken);
 
+        // refresh token and get a new one
         const { body: refreshedToken } = await spotifyApi.refreshAccessToken();
-        console.log(`Refresh token at refreshAccessToken`)
+
+        // return new refreshed token
         return {
             ...token,
             accessToken: refreshedToken.access_token,
@@ -35,23 +38,23 @@ export default NextAuth({
         // ...add more providers here
     ],
     jwt: {
+        // encryption needed to create JWT web token
         secret: process.env.JWT_SECRET,
         encryption: true,
         signingKey: '{"kty":"oct","kid":"<the-kid>","alg":"HS512","k":"<the-key>"}',
         encryptionKey: '{"kty":"oct","kid":"<the-kid>","alg":"A256GCM","k":"<the-key>"}',
     },
-    session: {
-        jwt: true,
-    },
     secret: process.env.JWT_SECRET,
     pages: {
+        // custom login page given to nextAuth instead of the default one
         signIn: '/login'
     },
     callbacks: {
+
         async jwt({ token, account, user }) {
-            // initial sign in, user is sigining in for the first time
+            // gets called each time useSession or getSession is used on the client side of the code
             if (account && user) {
-                console.log("TOKEN AT INITIAL LOGIN")
+                // initial sign in, user is sigining in for the first time
                 return {
                     ...token,
                     accessToken: account.access_token,
@@ -61,18 +64,17 @@ export default NextAuth({
                 }
             }
 
-            // Return previous token if access token has not expire yet
+
             if (Date.now() < token.accessTokenExpires) {
-                console.log("TOKEN IS STILL VALID")
+                // Return previous token if access token has not expire yet    
                 return token
             }
 
             // Access token has expired, so we need to refrsh it....
-            console.log("ACCESS TOKEN HAS EXPIRED REFRSHING");
             return await refreshAccessToken(token);
         },
         async session({ session, token }) {
-            console.log(`Refresh token at session`)
+            // gets called each time jwt callback has been called
             session.user.accessToken = token.accessToken;
             session.user.refreshToken = token.refreshToken;
             session.user.username = token.username;
