@@ -10,7 +10,6 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
         <AppLayout>
           <Component {...pageProps} />
         </AppLayout>
-
       </RecoilRoot>
     </SessionProvider>
   )

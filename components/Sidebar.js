@@ -2,36 +2,38 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'
 import { HomeIcon, SearchIcon, LibraryIcon, RssIcon } from '@heroicons/react/outline'
-import { HeartIcon, PlusIcon } from '@heroicons/react/solid'
+import { HeartIcon, PauseIcon, PlusIcon, VolumeUpIcon } from '@heroicons/react/solid'
 import { useSession } from 'next-auth/react'
 import useSpotify from '../customHooks/useSpotify'
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { playlistsIdState } from '../globalState/playlistsAtom'
+import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
+import { handlePlayAndPauseOfPlayer } from '../utils';
 
 function Sidebar() {
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
     const { data: session } = useSession(); // get the current logged in user session
     const [playlists, setPlaylists] = useState([]); // keeps state for all the user playists gotten from spotify
-    const [playlistId, setPlaylistId] = useRecoilState(playlistsIdState); // keeps ID state of the current clicked playlist by user
+    const [{ }, setPlaylistId] = useRecoilState(playlistsIdState); // Atom globla state
+    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
+    const { parentId } = useRecoilValue(currentTrackIdState); // Atom global state
 
     useEffect(() => {
         // gets user playlist from spotify on first render
         const getUserPlaylists = async () => {
-            try {
-                if (spotifyApi.getAccessToken()) {
-                    const data = await spotifyApi.getUserPlaylists();
-                    setPlaylists(data.body.items);
-                }
-            } catch (error) {
-                console.log(error);
+
+            if (spotifyApi.getAccessToken()) {
+                const data = await spotifyApi.getUserPlaylists().catch(err => console.log(err))
+                setPlaylists(data.body.items);
             }
+
         }
         getUserPlaylists();
 
     }, [session, spotifyApi])
     return (
-        <div className='text-gray-500 p-5 text-xs border-r border-gray-900 h-[90vh] hidden sm:max-w-[12rem] lg:max-w-[15rem] lg:text-sm md:flex flex-col'>
-            <section className='NAV-SECTION space-y-4 '>
+        <div className='text-gray-500 text-xs border-r border-gray-900 h-[90vh] hidden sm:max-w-[12rem] lg:max-w-[15rem] lg:text-sm md:flex flex-col'>
+            <section className='NAV-SECTION space-y-4 p-5 '>
                 <Link href='/'>
                     <a className='spotifyLogo block w-[65%]'>
                         <Image
@@ -79,14 +81,24 @@ function Sidebar() {
                 <hr className='border-t-[0.1px] border-gray-900 ' />
             </section>
             {/* PLAYLIST */}
-            <section className="PLAYLIST-SECTION space-y-4 scrollbar-style mt-5 h-[37%] overflow-y-scroll flex-1">
+            <section className="PLAYLIST-SECTION pl-5 pr-2 pb-5 space-y-4 scrollbar-style mt-5 h-[37%] overflow-y-scroll flex-1">
                 {
                     playlists.map(playlist => (
-                        <p key={playlist.id}
-                            onClick={() => setPlaylistId(playlist.id)}
-                            className="cursor-pointer hover:text-white ">
-                            {playlist.name}
-                        </p>
+                        <div key={playlist.id} className="flex justify-between items-center">
+                            <p
+                                onClick={() => setPlaylistId(playlist.id)}
+                                className="cursor-pointer hover:text-white ">
+                                {playlist.name}
+                            </p>
+                            {(isPlaying && parentId === playlist?.id) &&
+                                <div className='group'>
+                                    <VolumeUpIcon className=' h-3 w-3 group-hover:hidden ' />
+                                    <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-4 w-4 hidden group-hover:block' />
+                                </div>
+                            }
+
+                        </div>
+
                     ))
                 }
             </section>

@@ -8,9 +8,10 @@ function HeaderNav({ color }) {
     useEffect(() => {
         headerNavAnimations(color);
     }, [color])
+
     return (
         <header className='relative'>
-            <div className={`HEADER-NAV fixed p-3 flex w-[80%]`}>
+            <div className={`HEADER-NAV fixed p-3 flex w-[100%]`}>
                 <div className="NAV-ICONS flex flex-1 ">
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black'>
                         <ChevronLeftIcon className='h-6 w-6' />
@@ -23,7 +24,7 @@ function HeaderNav({ color }) {
                 </div>
                 <div
                     onClick={signOut}
-                    className='flex items-center  bg-black space-x-3 opacity-90 hover:opacity-80 cursor-pointer rounded-full p-1 pr-2'>
+                    className='flex items-center bg-black space-x-3 opacity-90 hover:opacity-80 cursor-pointer rounded-full p-1 pr-2 md:mr-[15em]'>
                     <img
                         className='rounded-full w-7 h-7'
                         src={session?.user?.image}

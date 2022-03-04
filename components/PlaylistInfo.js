@@ -28,6 +28,7 @@ function PlaylistInfo() {
     const [color, setColor] = useState(null); // keeps state of the current color that was selected after shuffle
     const playlistId = useRecoilValue(playlistsIdState); // Atom global state
     const [playlistDetails, setPlaylistDetails] = useRecoilState(playlistState); // Atom global state
+
     useEffect(() => {
         // shuffle colors array and select one
         setColor(shuffle(colors).pop())
@@ -37,31 +38,27 @@ function PlaylistInfo() {
     useEffect(() => {
         // gets user specific playlist from spotify
         const getUserPlaylist = async () => {
-            try {
-                if (spotifyApi.getAccessToken()) {
-                    const data = await spotifyApi.getPlaylist(playlistId);
-                    setPlaylistDetails(data.body);
-                }
 
-            } catch (error) {
-                console.log(error);
+            if (spotifyApi.getAccessToken()) {
+                const data = await spotifyApi.getPlaylist(playlistId).catch(err => console.log(err))
+                setPlaylistDetails(data.body);
             }
+
         }
 
         getUserPlaylist();
 
 
     }, [spotifyApi, playlistId, session, setPlaylistDetails]);
-    console.log(playlistDetails)
     return (
         <div className='PLAYLIST flex-grow scrollbar-style text-white overflow-scroll h-[100vh]'>
             <HeaderNav color={color} />
-            <section className={`PLAYLIST-SECTION-1 flex items-end space-x-7 bg-gradient-to-b ${color} to-black h-80 text-white p-8`}>
+            <section className={`PLAYLIST-SECTION-1 flex flex-col items-center space-x-7 bg-gradient-to-b ${color} to-black  text-white p-8 md:flex-row md:items-end md:h-80`}>
                 <img
                     className='h-44 w-44 shadow-2xl'
                     src={playlistDetails?.images[0]?.url}
                     alt="playlist-image" />
-                <div>
+                <div className='mt-4 md:mt-0'>
                     <p className='text-[.7rem]'>PLAYLIST</p>
                     <h1 className='text-1xl md:text-5xl xl:text-6xl font-bold'>{playlistDetails?.name}</h1>
                     <p className='text-sm mt-4 text-gray-400'>{playlistDetails?.description}</p>
