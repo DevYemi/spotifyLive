@@ -7,30 +7,24 @@ import useSpotify from '../customHooks/useSpotify'
 import useSongInfo from '../customHooks/useSongInfo'
 import { debounce } from "lodash"
 import { FastForwardIcon, PauseIcon, PlayIcon, RewindIcon, SwitchHorizontalIcon, VolumeOffIcon, VolumeUpIcon } from '@heroicons/react/outline';
+import { handlePlayAndPauseOfPlayer, toggleTrackRepeat } from '../utils';
+import { playlistState } from '../globalState/playlistsAtom';
 
 function Player() {
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
     const { data: session } = useSession(); // get the current logged in user session
-    const [currentTrackId, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
+    const playlist = useRecoilValue(playlistState); // Atom global state
+    const [{ currentTrackId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const [volume, setVolume] = useState(50); // keeps state for the current volume range the user is on
     const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
 
-    const handlePlayAndPause = async () => {
-        // handle pause and play event in the music player
-        const data = await spotifyApi.getMyCurrentPlaybackState();
-        if (data.body.is_playing) {
-            spotifyApi.pause();
-            setIsPlaying(false);
-        } else {
-            spotifyApi.play();
-            setIsPlaying(true);
-        }
-    }
+
     const debouncedAdjustVolume = useCallback((volume) => {
         // debounced function created with lodash
         const debouncedReturnedFromLodash = debounce((volume) => {
-            spotifyApi.setVolume(volume);
+            spotifyApi.setVolume(volume).catch(err => console.log(err));
+
         }, 500);
         debouncedReturnedFromLodash(volume);
     }, [spotifyApi]);
@@ -43,22 +37,11 @@ function Player() {
     }, [volume, debouncedAdjustVolume]);
 
     useEffect(() => {
-        // gets the current playing song from spotify if there isnt one in the currentTrackId global state
-        const fetchCurrentSong = async () => {
-            if (!songInfo) {
-                const data = await spotifyApi.getMyCurrentPlayingTrack();
-                setCurrentTrackId(data.body?.item?.id);
-
-
-                const { body } = await spotifyApi.getMyCurrentPlaybackState();
-                setIsPlaying(body?.is_playing);
-            }
-        }
-        if (spotifyApi.getAccessToken() && !currentTrackId) {
-            fetchCurrentSong();
+        // on every first render set the volume to 50
+        if (spotifyApi.getAccessToken()) {
             setVolume(50);
         }
-    }, [currentTrackId, spotifyApi, session, setCurrentTrackId, setIsPlaying, songInfo])
+    }, [spotifyApi, session,])
 
     return (
         <div className='text-white h-24 bg-gradient-to-b from-black to-gray-900 grid grid-cols-3 text-xs md:text-base px-2 md:px-8'>
@@ -66,7 +49,7 @@ function Player() {
             <div className='flex items-center space-x-4'>
                 <img
                     className='hidden md:inline h-10 w-10'
-                    src={songInfo?.album.images[0].url} alt="" />
+                    src={songInfo?.album?.images[0]?.url} alt="" />
                 <div>
                     <h3>{songInfo?.name}</h3>
                     <p>{songInfo?.artists?.[0]?.name}</p>
@@ -75,20 +58,20 @@ function Player() {
 
             {/* CENTER */}
             <div className='flex items-center justify-evenly'>
-                <SwitchHorizontalIcon className='button hover:scale-125' />
+                <SwitchHorizontalIcon onClick={() => toggleTrackRepeat()} className='button hover:scale-125' />
                 <RewindIcon
-                    onClick={spotifyApi.skipToPrevious}
+                    onClick={() => spotifyApi.skipToPrevious({ uri: [playlist?.uri] })}
                     className='button hover:scale-125' />
 
                 {
                     isPlaying ? (
-                        <PauseIcon onClick={handlePlayAndPause} className='button hover:scale-125 w-10 h-10' />
+                        <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='button hover:scale-125 w-10 h-10' />
                     ) : (
-                        <PlayIcon onClick={handlePlayAndPause} className='button hover:scale-125 w-10 h-10' />
+                        <PlayIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='button hover:scale-125 w-10 h-10' />
                     )
                 }
                 <FastForwardIcon
-                    onClick={spotifyApi.skipToNext}
+                    onClick={() => spotifyApi.skipToNext({ uri: [playlist?.uri] })}
                     className='button hover:scale-125' />
             </div>
 
