@@ -11,9 +11,10 @@ export const playSong = (track, setCurrentTrackId, setIsPlaying, playlistId, spo
 
 export const startPlayingPlaylist = async (playlist, index, setCurrentTrackId, setIsPlaying, parentId, spotifyApi) => {
     // starts playing a playlist from the first active song when the user click on PLAY or Resume if there currently playing one
-
+    console.log(playlist)
     const playlistSongs = playlist?.tracks?.items // gets all the songs on the playlist
     const track = playlistSongs[index]?.track; // gets a specific song based on the index passed
+
     const data = await spotifyApi.getMyCurrentPlaybackState().catch(err => console.log(err)); // get from spotify the current playback state
 
     if (!data?.body?.is_playing && playlist?.id === parentId) {

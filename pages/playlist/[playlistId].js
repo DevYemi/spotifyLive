@@ -47,7 +47,7 @@ function PlaylistInfo({ playlist }) {
     }, [playlistId, session, setPlaylist, playlist]);
     return (
         <div className='PLAYLIST flex-grow scrollbar-style text-white overflow-scroll h-[100vh]'>
-            <HeaderNav color={color} />
+            <HeaderNav color={color} gsapTrigger={'.PLAYLIST-SECTION-1'} gsapScroller={'.PLAYLIST'} />
             <section className={`PLAYLIST-SECTION-1 flex flex-col items-center space-x-7 bg-gradient-to-b ${color} to-black  text-white p-8 md:flex-row md:items-end md:h-80`}>
                 <img
                     className='h-44 w-44 shadow-2xl'
@@ -81,10 +81,15 @@ function PlaylistInfo({ playlist }) {
 export default PlaylistInfo
 
 export async function getServerSideProps(context) {
-    const session = await getSession(context); // get session
-    const { params: { playlistId } } = context; // get query Id
-    spotifyApi.setAccessToken(session.user.accessToken); // set accessToken to spotify api
-    const data = await spotifyApi.getPlaylist(playlistId).catch(err => console.log(err)) // get data from spotify api
+    try {
+        const session = await getSession(context); // get session
+        const { params: { playlistId } } = context; // get query Id
+        spotifyApi.setAccessToken(session.user.accessToken); // set accessToken to spotify api
+        var data = await spotifyApi.getPlaylist(playlistId).catch(err => console.log(err)) // get data from spotify api    
+    } catch (err) {
+        console.log(err)
+    }
+
     return {
         props: {
             playlist: data?.body

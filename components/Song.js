@@ -43,7 +43,10 @@ function Song({ order, track, addedAt }) {
                         {track?.album?.name}
                     </a>
                 </Link>
-                <p className='hidden text-[13px] lg:inline'>{getCorrectDate(addedAt)}</p>
+                {
+                    addedAt && <p className='hidden text-[13px] lg:inline'>{getCorrectDate(addedAt)}</p>
+                }
+
                 <p className='text-sm'>{convertMsToTime(track?.duration_ms, true)}</p>
             </div>
 

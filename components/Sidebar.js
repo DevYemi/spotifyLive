@@ -9,14 +9,17 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { playlistsIdState } from '../globalState/playlistsAtom'
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
 import { handlePlayAndPauseOfPlayer } from '../utils';
+import { isSidebarOpenState } from '../globalState/sidebarAtom';
+import { sidebarAnimation } from '../lib/gsapAnimation';
 
 function Sidebar() {
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
     const { data: session } = useSession(); // get the current logged in user session
     const [playlists, setPlaylists] = useState([]); // keeps state for all the user playists gotten from spotify
-    const [{ }, setPlaylistId] = useRecoilState(playlistsIdState); // Atom globla state
+    const [, setPlaylistId] = useRecoilState(playlistsIdState); // Atom globla state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const { parentId } = useRecoilValue(currentTrackIdState); // Atom global state
+    const [, setIsSidebarOpen] = useRecoilState(isSidebarOpenState); // Atom global state
 
     useEffect(() => {
         // gets user playlist from spotify on first render
@@ -33,10 +36,12 @@ function Sidebar() {
     }, [session, spotifyApi])
 
     return (
-        <div className='text-gray-500 text-xs border-r border-gray-900 h-[90vh] hidden sm:max-w-[12rem] lg:max-w-[15rem] lg:text-sm md:flex flex-col'>
+        <div className='SIDEBAR text-gray-500 text-xs border-r border-gray-900 h-[90vh] absolute left-[-745px] md:max-w-[13rem] lg:max-w-[15rem] lg:text-sm flex-col md:flex md:static md:!pt-0 '>
             <section className='NAV-SECTION space-y-4 p-5 '>
                 <Link href='/'>
-                    <a className='spotifyLogo block w-[65%]'>
+                    <a
+                        onClick={() => sidebarAnimation('CLOSE', setIsSidebarOpen)}
+                        className='spotifyLogo block w-[40%] md:w-[65%]'>
                         <Image
                             src={'https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_CMYK_White.png'}
                             width={'100%'}
@@ -48,10 +53,13 @@ function Sidebar() {
                         />
                     </a>
                 </Link>
-                <button className='flex items-center space-x-2 hover:text-white text-[14px]'>
-                    <HomeIcon className='h-7 w-7' />
-                    <p>Home</p>
-                </button>
+                <Link href={'/'}>
+                    <a onClick={() => sidebarAnimation('CLOSE', setIsSidebarOpen)} className='flex items-center space-x-2 hover:text-white text-[14px]'>
+                        <HomeIcon className='h-7 w-7' />
+                        <p>Home</p>
+                    </a>
+                </Link>
+
                 <button className='flex items-center space-x-2 hover:text-white text-[14px]'>
                     <SearchIcon className='h-7 w-7' />
                     <p>Search</p>
@@ -86,7 +94,9 @@ function Sidebar() {
                 {
                     playlists?.map(playlist => (
                         <Link key={playlist?.id} href={`/playlist/${playlist?.id}`}>
-                            <a className="flex justify-between items-center">
+                            <a
+                                onClick={() => sidebarAnimation('CLOSE', setIsSidebarOpen)}
+                                className="flex justify-between items-center">
                                 <p
                                     onClick={() => setPlaylistId(playlist?.id)}
                                     className="cursor-pointer hover:text-white ">

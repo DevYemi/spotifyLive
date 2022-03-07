@@ -19,6 +19,10 @@ body {
     .spotifyLogo span {
         @apply h-[70px] !important
     }
+
+    .timeRangeActive {
+        @apply border-b-4 pb-4 border-[#1ED760]
+    }
 }
 
 

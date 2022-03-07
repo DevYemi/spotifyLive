@@ -9,7 +9,7 @@ function AppLayout({ children }) {
     if (session) {
         return (
             <div className="bg-black h-screen overflow-hidden">
-                <main className='flex'>
+                <main className='flex h-[88vh] relative'>
                     <Sidebar />
                     {children}
                 </main>
