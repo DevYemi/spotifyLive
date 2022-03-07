@@ -16,7 +16,7 @@ export const startPlayingPlaylist = async (playlist, index, setCurrentTrackId, s
     const track = playlistSongs[index]?.track; // gets a specific song based on the index passed
     const data = await spotifyApi.getMyCurrentPlaybackState().catch(err => console.log(err)); // get from spotify the current playback state
 
-    if (!data.body.is_playing && playlist?.id === parentId) {
+    if (!data?.body?.is_playing && playlist?.id === parentId) {
         // if there is a currentTrack paused and its a Track of the current displayed playlist, resume the song from where it stopped
 
         handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying);
@@ -53,8 +53,58 @@ export const handlePlayAndPauseOfPlayer = async (spotifyApi, setIsPlaying) => {
 
 }
 
-export const toggleTrackRepeat = () => {
-    spotifyApi.setRepeat("track")
-        .then(() => console.log("repeating track"))
+export const toggleTrackRepeat = (isTrackOnRepeat, setIsTrackOnRepeat, spotifyApi) => {
+    // Toggle the a track repeat state, turns it off or on based on its current state
+    const op = isTrackOnRepeat ? "off" : "track"
+    spotifyApi.setRepeat(op)
+        .then(() => setIsTrackOnRepeat(!isTrackOnRepeat))
         .catch(err => console.log(err))
+}
+
+export const handleTrackSkips = (op, setCurrentTrackId, spotifyApi) => {
+    // handles the skips forward and backward functionality of tracks
+    if (op === "NEXT") {
+        spotifyApi.skipToNext("lol")
+            .then(async () => {
+                const trackInfo = await getCurrentPlayingTrackFromSpotify(spotifyApi);
+                setCurrentTrackId({ currentTrackId: trackInfo?.id, parentId: null })
+            })
+            .catch((err) => console.log(err))
+    } else if (op === "PREV") {
+        spotifyApi.skipToPrevious("lol")
+            .then(async () => {
+                const trackInfo = await getCurrentPlayingTrackFromSpotify(spotifyApi);
+                setCurrentTrackId({ currentTrackId: trackInfo?.id, parentId: null })
+            })
+            .catch((err) => console.log(err))
+    }
+}
+
+export const getCurrentPlayingTrackFromSpotify = async (spotifyApi) => {
+    // gets the track thats currently playing from spotify
+    const data = await spotifyApi.getMyCurrentPlayingTrack().catch(err => console.log(err));
+    const res = await fetch(
+        `https://api.spotify.com/v1/tracks/${data?.body?.item?.id}`,
+        { headers: { Authorization: `Bearer ${spotifyApi.getAccessToken()}` } }
+    )
+
+    return await res.json();
+}
+
+export const toggleFollowingPlaylist = (op, playlist, setIsUserFollowingPlaylist, spotifyApi) => {
+    // Toggle user playlist following state 
+    if (op === "FOL") {
+        // Follow a playlist
+        spotifyApi.followPlaylist(playlist?.id, { 'public': false })
+            .then(function (data) {
+                setIsUserFollowingPlaylist(true)
+            }).catch(err => console.log(err))
+    } else if (op === "UN-FOL") {
+        // Unfollow a playlist
+        spotifyApi.unfollowPlaylist(playlist?.id)
+            .then(function (data) {
+                setIsUserFollowingPlaylist(false);
+            }).catch(err => console.log(err))
+    }
+
 }

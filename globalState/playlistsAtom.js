@@ -9,6 +9,6 @@ export const playlistState = atom({
 export const playlistsIdState = atom({
     // keeps state of the id of the play that is currently on the viewport
     key: "playlistsIdState",
-    default: "7IVDtxPs76INNTDoM7eYsC"
+    default: "7cmwb7uBNO06BzoQEwxqff"
 })
 

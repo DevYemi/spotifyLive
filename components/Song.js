@@ -27,7 +27,7 @@ function Song({ order, track, addedAt }) {
                     alt="Track Picture" />
                 <div>
                     <p className='w-36 lg:w-64 max-w-[60px] truncate text-white text-sm md:max-w-[200px] lg:max-w-[100%]'>{track?.name}</p>
-                    <p className=' text-sm w-[100%] max-w-[50px] truncate md:max-w-[150px] lg:max-w-[250px]'>{
+                    <p className='group-hover:text-white text-sm w-[100%] max-w-[50px] truncate md:max-w-[150px] lg:max-w-[250px]'>{
                         track?.artists.map((artist, i) => (
                             <Link key={artist?.id} href={'/'}>
                                 <a className='hover:underline cursor-pointer w-max inline'>{`${artist?.name} ${track?.artists.length > (i + 1) ? "," : ""}`}</a>
@@ -39,7 +39,7 @@ function Song({ order, track, addedAt }) {
 
             <div className='flex items-center justify-between ml-auto md:ml-0'>
                 <Link href={'/'}>
-                    <a className='w-40 hidden text-[13px] md:inline hover:underline'>
+                    <a className='group-hover:text-white w-40 hidden text-[13px] md:inline hover:underline'>
                         {track?.album?.name}
                     </a>
                 </Link>

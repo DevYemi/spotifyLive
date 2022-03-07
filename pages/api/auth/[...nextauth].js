@@ -52,6 +52,7 @@ export default NextAuth({
     callbacks: {
 
         async jwt({ token, account, user }) {
+
             // gets called each time useSession or getSession is used on the client side of the code
             if (account && user) {
                 // initial sign in, user is sigining in for the first time

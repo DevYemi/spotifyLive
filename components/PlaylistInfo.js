@@ -41,7 +41,7 @@ function PlaylistInfo() {
 
             if (spotifyApi.getAccessToken()) {
                 const data = await spotifyApi.getPlaylist(playlistId).catch(err => console.log(err))
-                setPlaylistDetails(data.body);
+                setPlaylistDetails(data?.body);
             }
 
         }

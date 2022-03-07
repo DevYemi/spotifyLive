@@ -1,8 +1,9 @@
 import { ClockIcon, DotsHorizontalIcon, HeartIcon, PlayIcon, PauseIcon } from '@heroicons/react/solid'
-import React from 'react'
+import { HeartIcon as HeartIconOutline } from '@heroicons/react/outline'
+import React, { useEffect, useState } from 'react'
 import { useRecoilValue, useRecoilState } from 'recoil'
 import { playlistState } from '../globalState/playlistsAtom'
-import { handlePlayAndPauseOfPlayer, startPlayingPlaylist } from '../utils'
+import { handlePlayAndPauseOfPlayer, startPlayingPlaylist, toggleFollowingPlaylist } from '../utils'
 import Song from './Song'
 import useSpotify from '../customHooks/useSpotify'
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom'
@@ -10,11 +11,27 @@ import { useSession } from 'next-auth/react'
 
 function Songs() {
     const { data: session } = useSession();  // get the current logged in user session
-    const playlist = useRecoilValue(playlistState);
-    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const spotifyApi = useSpotify();
-    const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState);
-    console.log(playlist)
+    const playlist = useRecoilValue(playlistState);  // Atom global state
+    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
+    const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
+    const [isUserFollowingPlaylist, setIsUserFollowingPlaylist] = useState(false); // keeps state if a user is following a playlist
+
+    useEffect(() => {
+        // checks if a user is following playlist
+        if (session && playlist) {
+
+            spotifyApi.areFollowingPlaylist(session?.user?.username, playlist?.id, [`${session?.user?.username}`])
+                .then(function (data) {
+                    console.log(data.body);
+                    setIsUserFollowingPlaylist(data?.body[0])
+                }).catch((err) => console.log(err))
+
+        }
+
+
+    }, [spotifyApi, playlist, session])
+
     return (
         <div className=''>
             <div className='flex px-6 items-center space-x-5 mb-5'>
@@ -26,7 +43,17 @@ function Songs() {
                 }
                 {
                     playlist?.owner?.id !== session?.user?.username &&
-                    <HeartIcon className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                    <>
+                        {
+                            isUserFollowingPlaylist ?
+                                <HeartIcon onClick={() => toggleFollowingPlaylist("UN-FOL", playlist, setIsUserFollowingPlaylist, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                :
+                                <HeartIconOutline onClick={() => toggleFollowingPlaylist("FOL", playlist, setIsUserFollowingPlaylist, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                        }
+
+
+                    </>
+
                 }
 
                 <DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' />

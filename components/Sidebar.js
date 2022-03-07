@@ -24,7 +24,7 @@ function Sidebar() {
 
             if (spotifyApi.getAccessToken()) {
                 const data = await spotifyApi.getUserPlaylists().catch(err => console.log(err))
-                setPlaylists(data.body.items);
+                setPlaylists(data?.body?.items);
             }
 
         }
@@ -83,12 +83,12 @@ function Sidebar() {
             {/* PLAYLIST */}
             <section className="PLAYLIST-SECTION pl-5 pr-2 pb-5 space-y-4 scrollbar-style mt-5 h-[37%] overflow-y-scroll flex-1">
                 {
-                    playlists.map(playlist => (
-                        <div key={playlist.id} className="flex justify-between items-center">
+                    playlists?.map(playlist => (
+                        <div key={playlist?.id} className="flex justify-between items-center">
                             <p
-                                onClick={() => setPlaylistId(playlist.id)}
+                                onClick={() => setPlaylistId(playlist?.id)}
                                 className="cursor-pointer hover:text-white ">
-                                {playlist.name}
+                                {playlist?.name}
                             </p>
                             {(isPlaying && parentId === playlist?.id) &&
                                 <div className='group'>
