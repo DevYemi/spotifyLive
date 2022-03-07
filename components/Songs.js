@@ -23,7 +23,6 @@ function Songs() {
 
             spotifyApi.areFollowingPlaylist(session?.user?.username, playlist?.id, [`${session?.user?.username}`])
                 .then(function (data) {
-                    console.log(data.body);
                     setIsUserFollowingPlaylist(data?.body[0])
                 }).catch((err) => console.log(err))
 

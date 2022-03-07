@@ -3,28 +3,44 @@ import React, { useEffect } from 'react'
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/outline';
 import { useSession, signOut } from 'next-auth/react'
 import { headerNavAnimations } from '../lib/gsapAnimation'
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { playlistState } from '../globalState/playlistsAtom';
+import { PauseIcon, PlayIcon } from '@heroicons/react/solid';
+import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
+import { handlePlayAndPauseOfPlayer, startPlayingPlaylist } from '../utils';
+import useSpotify from '../customHooks/useSpotify';
 function HeaderNav({ color }) {
     const { data: session } = useSession();  // get the current logged in user session
+    const spotifyApi = useSpotify();
+    const playlist = useRecoilValue(playlistState) // Atom global state
+    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
+    const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     useEffect(() => {
+        // activate gsap anination on first render
         headerNavAnimations(color);
-    }, [color])
+    }, [color, playlist])
 
     return (
         <header className='relative'>
-            <div className={`HEADER-NAV fixed p-3 flex w-[100%]`}>
-                <div className="NAV-ICONS flex flex-1 ">
+            <div className={`HEADER-NAV fixed p-3 flex items-center w-[100%]`}>
+                <div className="NAV-ICONS flex items-center  flex-1 ">
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black'>
                         <ChevronLeftIcon className='h-6 w-6' />
                     </span>
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black ml-4'>
                         <ChevronRightIcon className='h-6 w-6' />
                     </span>
-
-
+                    {
+                        (isPlaying && playlist?.id === parentId) ?
+                            <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='HEADER-NAV-ICON h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden opacity-0 md:block' />
+                            :
+                            <PlayIcon onClick={() => startPlayingPlaylist(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)} className='HEADER-NAV-ICON h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden opacity-0 md:block' />
+                    }
+                    <h1 className='HEADER-NAV-H1 text-[1.1rem] hidden opacity-0 md:block'>{playlist?.name}</h1>
                 </div>
                 <div
                     onClick={signOut}
-                    className='flex items-center bg-black space-x-3 opacity-90 hover:opacity-80 cursor-pointer rounded-full p-1 pr-2 md:mr-[15em]'>
+                    className='flex items-center h-fit bg-black space-x-3 opacity-90 hover:opacity-80 cursor-pointer rounded-full p-1 pr-2 md:mr-[15em]'>
                     <img
                         className='rounded-full w-7 h-7'
                         src={session?.user?.image}

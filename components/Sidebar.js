@@ -31,6 +31,7 @@ function Sidebar() {
         getUserPlaylists();
 
     }, [session, spotifyApi])
+
     return (
         <div className='text-gray-500 text-xs border-r border-gray-900 h-[90vh] hidden sm:max-w-[12rem] lg:max-w-[15rem] lg:text-sm md:flex flex-col'>
             <section className='NAV-SECTION space-y-4 p-5 '>
@@ -84,20 +85,22 @@ function Sidebar() {
             <section className="PLAYLIST-SECTION pl-5 pr-2 pb-5 space-y-4 scrollbar-style mt-5 h-[37%] overflow-y-scroll flex-1">
                 {
                     playlists?.map(playlist => (
-                        <div key={playlist?.id} className="flex justify-between items-center">
-                            <p
-                                onClick={() => setPlaylistId(playlist?.id)}
-                                className="cursor-pointer hover:text-white ">
-                                {playlist?.name}
-                            </p>
-                            {(isPlaying && parentId === playlist?.id) &&
-                                <div className='group'>
-                                    <VolumeUpIcon className=' h-3 w-3 group-hover:hidden ' />
-                                    <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-4 w-4 hidden group-hover:block' />
-                                </div>
-                            }
+                        <Link key={playlist?.id} href={`/playlist/${playlist?.id}`}>
+                            <a className="flex justify-between items-center">
+                                <p
+                                    onClick={() => setPlaylistId(playlist?.id)}
+                                    className="cursor-pointer hover:text-white ">
+                                    {playlist?.name}
+                                </p>
+                                {(isPlaying && parentId === playlist?.id) &&
+                                    <div className='group'>
+                                        <VolumeUpIcon className=' h-3 w-3 group-hover:hidden ' />
+                                        <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-4 w-4 hidden group-hover:block' />
+                                    </div>
+                                }
+                            </a>
+                        </Link>
 
-                        </div>
 
                     ))
                 }

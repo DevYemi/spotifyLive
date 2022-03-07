@@ -1,7 +1,7 @@
-import PlaylistInfo from '../components/PlaylistInfo'
+
 
 const Home = () => {
-  return <PlaylistInfo />
+  return <></>
 }
 
 export default Home
