@@ -95,7 +95,7 @@ function Sidebar() {
                 <hr className='border-t-[0.1px] border-gray-900 ' />
             </section>
             {/* PLAYLIST */}
-            <section className="PLAYLIST-SECTION pl-5 pr-2 pb-5 space-y-4 scrollbar-style mt-5 h-[37%] overflow-y-scroll flex-1">
+            <section className="PLAYLIST-SECTION pl-5 pr-2 pb-5 space-y-4 scrollbar-style h-[191px] overflow-y-scroll flex-1">
                 {
                     playlists?.map(playlist => (
                         <Link key={playlist?.id} href={`/playlist/${playlist?.id}`}>
