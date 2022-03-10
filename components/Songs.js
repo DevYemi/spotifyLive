@@ -3,7 +3,7 @@ import { HeartIcon as HeartIconOutline } from '@heroicons/react/outline'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue, useRecoilState } from 'recoil'
 import { playlistState } from '../globalState/playlistsAtom'
-import { handlePlayAndPauseOfPlayer, startPlayingPlaylist, toggleFollowingPlaylist } from '../utils'
+import { handlePlayAndPauseOfPlayer, startPlayingListOfSongs, toggleFollowingPlaylist } from '../utils'
 import Song from './Song'
 import useSpotify from '../customHooks/useSpotify'
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom'
@@ -19,7 +19,7 @@ function Songs() {
 
     useEffect(() => {
         // checks if a user is following playlist
-        if (session && playlist) {
+        if (session && playlist?.id) {
 
             spotifyApi.areFollowingPlaylist(session?.user?.username, playlist?.id, [`${session?.user?.username}`])
                 .then(function (data) {
@@ -38,7 +38,7 @@ function Songs() {
                     (isPlaying && playlist?.id === parentId) ?
                         <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' />
                         :
-                        <PlayIcon onClick={() => startPlayingPlaylist(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' />
+                        <PlayIcon onClick={() => startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' />
                 }
                 {
                     playlist?.owner?.id !== session?.user?.username &&
@@ -58,7 +58,7 @@ function Songs() {
                 <DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' />
             </div>
 
-            <div className='px-8 flex flex-col space-y-1 pb-28'>
+            <div className='px-8 flex flex-col space-y-1'>
                 <div className='grid px-5 uppercase text-sm font-bold grid-cols-2 text-gray-500 pt-4 pb-1 border-b border-gray-600'>
                     <p className=''># Title</p>
 
@@ -69,7 +69,7 @@ function Songs() {
                     </div>
                 </div>
                 {
-                    playlist?.tracks.items.map(({ track, added_at }, i) => (
+                    playlist?.tracks?.items?.map(({ track, added_at }, i) => (
                         <Song
                             key={track?.id}
                             track={track}

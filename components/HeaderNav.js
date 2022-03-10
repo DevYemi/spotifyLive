@@ -7,34 +7,54 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { playlistState } from '../globalState/playlistsAtom';
 import { MenuIcon, PauseIcon, PlayIcon, XCircleIcon } from '@heroicons/react/solid';
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
-import { handlePlayAndPauseOfPlayer, startPlayingPlaylist } from '../utils';
+import { handlePlayAndPauseOfPlayer, startPlayingListOfSongs } from '../utils';
 import useSpotify from '../customHooks/useSpotify';
 import { isSidebarOpenState } from '../globalState/sidebarAtom'
 import { useRouter } from 'next/router';
+import { topTracksState } from '../globalState/topTracksAtom'
+
 function HeaderNav({ color, gsapTrigger, gsapScroller }) {
     const { data: session } = useSession();  // get the current logged in user session
     const spotifyApi = useSpotify();
-    const playlist = useRecoilValue(playlistState) // Atom global state
+    const playlist = useRecoilValue(playlistState) // Atom global state 
+    const topTracks = useRecoilValue(topTracksState) // Atom global state 
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     const [isSidebarOpen, setIsSidebarOpen] = useRecoilState(isSidebarOpenState); // Atom global state
-    const { pathname } = useRouter()
+    const [headerListOfSongsDetails, setHeaderListOfSongsDetails] = useState({}); // keeps state of the details of the body of work thats currently playing
+    const { pathname, query: { time_range } } = useRouter()
     const handlePlay = () => {
-        if (pathname.includes('playlist')) {
-            startPlayingPlaylist(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)
-        } else if (pathname.includes('top-tracks')) {
-
-        } else if (pathname.includes('album')) {
-
+        if (pathname.includes('playlist')) startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)
+        if (pathname.includes('top-tracks')) {
+            const idType = time_range === 'short_term' ? 'short_term' : time_range === 'medium_term' ? 'medium_term' : 'long_term';
+            const modifyTopTracks = {
+                // modify top Tracks data structure to fit playlist data structure so as to use the same function
+                id: idType,
+                tracks: { items: topTracks.map(track => ({ track })) }
+            }
+            startPlayingListOfSongs(modifyTopTracks, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
         }
+        if (pathname.includes('album')) startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)
+
     }
     useEffect(() => {
         // activate gsap anination on first render
         headerNavAnimations(color, gsapTrigger, gsapScroller);
-    }, [color, playlist, gsapTrigger, gsapScroller])
+    }, [color, playlist, gsapTrigger, gsapScroller]);
+
+    useEffect(() => {
+        // set the current name of body of work on header nav (e.g "playlist", "Top tracks", "album")
+
+        const topTrackidType = time_range === 'short_term' ? 'short_term' : time_range === 'medium_term' ? 'medium_term' : 'long_term';
+        const topTrackNameType = time_range === 'short_term' ? '4 Weeks' : time_range === 'medium_term' ? '6 Months' : 'All Time';
+
+        if (pathname.includes('playlist')) setHeaderListOfSongsDetails({ name: playlist?.name, id: playlist?.id })
+        if (pathname.includes('top-tracks')) setHeaderListOfSongsDetails({ name: `Top Tracks ${topTrackNameType}`, id: topTrackidType })
+        if (pathname.includes('album')) setHeaderListOfSongsDetails('Album')
+    }, [pathname, setHeaderListOfSongsDetails, playlist, topTracks, time_range])
 
     return (
-        <header className='relative'>
+        <header className='relative z-10'>
             <div className={`HEADER-NAV fixed p-3 flex items-center w-[100%]`}>
                 <div className="NAV-ICONS flex items-center  flex-1 ">
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black'>
@@ -43,16 +63,19 @@ function HeaderNav({ color, gsapTrigger, gsapScroller }) {
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black ml-4'>
                         <ChevronRightIcon className='h-6 w-6' />
                     </span>
-                    {
-                        (isPlaying && playlist?.id === parentId) ?
-                            <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className={`HEADER-NAV-ICON h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden opacity-0 md:block`} />
-                            :
-                            <PlayIcon
-                                onClick={handlePlay}
-                                className='HEADER-NAV-ICON h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden opacity-0 md:block'
-                            />
-                    }
-                    <h1 className='HEADER-NAV-H1 text-[1.1rem] hidden opacity-0 md:block'>{playlist?.name}</h1>
+                    <div className={`HEADER-NAV-ICON opacity-0 ${gsapTrigger === '.TOP-ARTISTS' && 'hidden'}`}>
+                        {
+                            (isPlaying && headerListOfSongsDetails?.id === parentId) ?
+                                <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className={` h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden md:block`} />
+                                :
+                                <PlayIcon
+                                    onClick={handlePlay}
+                                    className=' h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden  md:block'
+                                />
+                        }
+                    </div>
+
+                    <h1 className='HEADER-NAV-H1 text-[1.1rem] hidden opacity-0 md:block'>{headerListOfSongsDetails?.name}</h1>
                 </div>
                 <div
                     onClick={signOut}

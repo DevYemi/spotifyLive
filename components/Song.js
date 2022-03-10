@@ -1,26 +1,54 @@
 /* eslint-disable @next/next/no-img-element */
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil';
 import useSpotify from '../customHooks/useSpotify'
 import { convertMsToTime, getCorrectDate } from '../lib/time'
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom'
-import { PlayIcon } from '@heroicons/react/solid';
+import { PlayIcon, BadgeCheckIcon } from '@heroicons/react/solid';
 import Link from 'next/link';
 import { playSong } from "../utils"
 import { playlistsIdState } from '../globalState/playlistsAtom';
 
-function Song({ order, track, addedAt }) {
+function Song({ order, track, addedAt, ...props }) {
     const spotifyApi = useSpotify();
     const playlistId = useRecoilValue(playlistsIdState);
     const [{ currentTrackId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
-    const isTrackActive = true; //track?.preview_url; // checker if song is still live on spotify platform
+    const [isTrackSelected, setIsTrackSelected] = useState(false); // keeps state if a track has been seleceted for a playlist
+    useEffect(() => {
+        // reset all seceted tracks to false once is user cancle playlist selection
+        if (!props.isCreatePlaylist) setIsTrackSelected(false);
+    }, [props.isCreatePlaylist])
+    const handleTrackAddToPlaylist = () => {
+        if (!props.isCreatePlaylist) return // return if user isn't current creating a playlist
+        if (isTrackSelected) props.setSelectedTracks(props.selectedTracks.filter(sTrack => sTrack?.id !== track?.id)) // remove if track has already been picked
+        if (!isTrackSelected) props.setSelectedTracks([...props.selectedTracks, track]) // add if track hasnt been picked
+        setIsTrackSelected(!isTrackSelected)
+    }
 
     return (
-        <div className={`${isTrackActive ? "group" : ""} grid grid-cols-2 ${!isTrackActive ? "opacity-40" : ""} text-gray-500 py-4  hover:bg-gray-900 rounded-lg px-5`}>
+        <div
+            onClick={handleTrackAddToPlaylist}
+            className={`group grid grid-cols-2 text-gray-500 py-4  hover:bg-gray-900 rounded-lg px-5`}>
             <div className='flex items-center space-x-4'>
-                <p className='group-hover:hidden'>{order + 1}</p>
-                <p onClick={() => playSong(track, setCurrentTrackId, setIsPlaying, playlistId, spotifyApi)}><PlayIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
+                {   // if user is currently picking a playlist open picker icon
+                    props.isCreatePlaylist ?
+                        <div>
+                            {isTrackSelected ?
+                                <BadgeCheckIcon className='w-4 h-4 text-[#1ED760]' />
+                                :
+                                <span className='block p-[5px] rounded-full border border-[#bdbaba]'></span>
+                            }
+
+                        </div>
+                        :
+                        <>
+                            <p className='group-hover:hidden'>{order + 1}</p>
+                            <p onClick={() => playSong(track, setCurrentTrackId, setIsPlaying, playlistId, spotifyApi)}><PlayIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
+                        </>
+                }
+
+
                 <img
                     className='h-10 w-10'
                     src={track?.album?.images[0]?.url}
@@ -39,7 +67,7 @@ function Song({ order, track, addedAt }) {
 
             <div className='flex items-center justify-between ml-auto md:ml-0'>
                 <Link href={'/'}>
-                    <a className='group-hover:text-white w-40 hidden text-[13px] md:inline hover:underline'>
+                    <a className='group-hover:text-white w-40 hidden text-[13px] md:w-fit md:inline hover:underline'>
                         {track?.album?.name}
                     </a>
                 </Link>

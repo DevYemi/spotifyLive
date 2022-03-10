@@ -9,33 +9,32 @@ export const playSong = (track, setCurrentTrackId, setIsPlaying, playlistId, spo
 
 }
 
-export const startPlayingPlaylist = async (playlist, index, setCurrentTrackId, setIsPlaying, parentId, spotifyApi) => {
-    // starts playing a playlist from the first active song when the user click on PLAY or Resume if there currently playing one
-    console.log(playlist)
-    const playlistSongs = playlist?.tracks?.items // gets all the songs on the playlist
-    const track = playlistSongs[index]?.track; // gets a specific song based on the index passed
+export const startPlayingListOfSongs = async (listOfSongs, index, setCurrentTrackId, setIsPlaying, parentId, spotifyApi) => {
+    // starts playing a listOfSongs from the first active song when the user click on PLAY or Resume if there currently playing one
+    const listOfSongsSongs = listOfSongs?.tracks?.items // gets all the songs on the listOfSongs
+    const track = listOfSongsSongs[index]?.track; // gets a specific song based on the index passed
 
     const data = await spotifyApi.getMyCurrentPlaybackState().catch(err => console.log(err)); // get from spotify the current playback state
 
-    if (!data?.body?.is_playing && playlist?.id === parentId) {
-        // if there is a currentTrack paused and its a Track of the current displayed playlist, resume the song from where it stopped
+    if (!data?.body?.is_playing && listOfSongs?.id === parentId) {
+        // if there is a currentTrack paused and its a Track of the current displayed listOfSongs, resume the song from where it stopped
 
         handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying);
     }
-    else if (playlistSongs.length > index) {
-        // else start playlist from the first song thats available
+    else if (listOfSongsSongs.length > index) {
+        // else start listOfSongs from the first song thats available
 
         spotifyApi.play({
             // play the song
             uris: [track.uri]
         }).then(() => {
             // update state
-            setCurrentTrackId({ currentTrackId: track.id, parentId: playlist?.id });
+            setCurrentTrackId({ currentTrackId: track.id, parentId: listOfSongs?.id });
             setIsPlaying(true);
         }).catch(err => {
-            // if it fails to play song, move to the next song on playlist list
+            // if it fails to play song, move to the next song on listOfSongs list
             console.log(err);
-            startPlayingPlaylist(playlist, index + 1, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
+            startPlayingListOfSongs(listOfSongs, index + 1, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
         });
     }
 
@@ -108,4 +107,23 @@ export const toggleFollowingPlaylist = (op, playlist, setIsUserFollowingPlaylist
             }).catch(err => console.log(err))
     }
 
+}
+
+export const createNewPlaylist = (selectedTracks, router, userPlaylists, spotifyApi) => {
+    // Create a new Playlist for user
+
+    const selectedTracksURIs = selectedTracks.map(track => track?.uri)
+    let newCreatedPlaylistId = ''
+    spotifyApi.createPlaylist(`My playlist #${userPlaylists.length + 1}`, { 'description': 'My description', 'public': true })
+        .then((data) => {
+            // first create playlist
+            newCreatedPlaylistId = data?.body?.id
+            if (selectedTracks.length < 1) return router.push(`/playlist/${newCreatedPlaylistId}`)
+
+            spotifyApi.addTracksToPlaylist(newCreatedPlaylistId, selectedTracksURIs)
+                .then(function (data) {
+                    // then add the tracks selceted
+                    router.push(`/playlist/${newCreatedPlaylistId}`)
+                }).catch(err => console.log(err))
+        }).catch(err => console.log(err))
 }

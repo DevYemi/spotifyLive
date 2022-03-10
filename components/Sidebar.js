@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'
 import { HomeIcon, SearchIcon, LibraryIcon, RssIcon } from '@heroicons/react/outline'
@@ -6,20 +6,23 @@ import { HeartIcon, PauseIcon, PlusIcon, VolumeUpIcon } from '@heroicons/react/s
 import { useSession } from 'next-auth/react'
 import useSpotify from '../customHooks/useSpotify'
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { playlistsIdState } from '../globalState/playlistsAtom'
+import { playlistsIdState, userPlaylistsState } from '../globalState/playlistsAtom'
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
-import { handlePlayAndPauseOfPlayer } from '../utils';
+import { createNewPlaylist, handlePlayAndPauseOfPlayer } from '../utils';
 import { isSidebarOpenState } from '../globalState/sidebarAtom';
 import { sidebarAnimation } from '../lib/gsapAnimation';
+import { useRouter } from 'next/router';
+import DisplayModal from './appModals/DisplayModal'
 
 function Sidebar() {
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
     const { data: session } = useSession(); // get the current logged in user session
-    const [playlists, setPlaylists] = useState([]); // keeps state for all the user playists gotten from spotify
+    const [playlists, setPlaylists] = useRecoilState(userPlaylistsState); // keeps state for all the user playists gotten from spotify
     const [, setPlaylistId] = useRecoilState(playlistsIdState); // Atom globla state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const { parentId } = useRecoilValue(currentTrackIdState); // Atom global state
     const [, setIsSidebarOpen] = useRecoilState(isSidebarOpenState); // Atom global state
+    const router = useRouter();
 
     useEffect(() => {
         // gets user playlist from spotify on first render
@@ -33,10 +36,10 @@ function Sidebar() {
         }
         getUserPlaylists();
 
-    }, [session, spotifyApi])
+    }, [session, spotifyApi, setPlaylists])
 
     return (
-        <div className='SIDEBAR text-gray-500 text-xs border-r border-gray-900 h-[90vh] absolute left-[-745px] md:max-w-[13rem] lg:max-w-[15rem] lg:text-sm flex-col md:flex md:static md:!pt-0 '>
+        <div className='SIDEBAR text-gray-500 text-xs border-r z-10 border-gray-900 h-[90vh] absolute left-[-745px] md:max-w-[13rem] lg:max-w-[15rem] lg:text-sm flex-col md:flex md:static md:!pt-0 '>
             <section className='NAV-SECTION space-y-4 p-5 '>
                 <Link href='/'>
                     <a
@@ -69,7 +72,9 @@ function Sidebar() {
                     <p>Library</p>
                 </button>
                 <hr className='border-t-[0.1px] border-gray-900 ' />
-                <button className='flex items-center space-x-2 hover:text-white text-[14px]'>
+                <button
+                    onClick={() => createNewPlaylist([], router, playlists, spotifyApi)}
+                    className='flex items-center space-x-2 hover:text-white text-[14px]'>
                     <span className='p-1 rounded-sm bg-gray-300'>
                         <PlusIcon className='h-4 w-4 text-gray-900 ' />
                     </span>
@@ -116,7 +121,7 @@ function Sidebar() {
                 }
             </section>
 
-
+            <DisplayModal />
 
         </div>
     )
