@@ -33,8 +33,7 @@ function TopArtists({ topArtists }) {
                 <div className="flex flex-wrap justify-center max-w-7xl mx-auto ">
                     {
                         topArtists.map((artist, i) => (
-                            <div key={artist?.id} className='w-full max-w-[200px] px-5 py-5 rounded-md cursor-pointer hover:bg-[#383737]'>
-
+                            <div key={artist?.id} className='w-full max-w-[110px] px-3 py-3 rounded-md cursor-pointer hover:bg-[#383737] md:max-w-[200px] md:py-5 md:px-5'>
                                 <Image
                                     src={artist?.images[0]?.url ? artist?.images[0]?.url : '/img/not-found.jpg'}
                                     width={'100%'}
@@ -44,8 +43,7 @@ function TopArtists({ topArtists }) {
                                     objectFit='contain'
                                     alt={`${artist?.name} Image`}
                                 />
-
-                                <p className='mt-5 text-sm '>{`${i + 1}) ${artist?.name}`}</p>
+                                <p className='mt-5 text-[9px] md:text-sm '>{`${i + 1}) ${artist?.name}`}</p>
                             </div>
                         ))
                     }

@@ -22,7 +22,7 @@ export async function getServerSideProps(context) {
     }
     return {
         props: {
-            topTracks: data?.body?.items
+            topTracks: data?.body?.items ? data?.body?.items : null
         }
     }
 }

@@ -22,7 +22,7 @@ export async function getServerSideProps(context) {
     }
     return {
         props: {
-            topArtists: data?.body?.items
+            topArtists: data?.body?.items ? data?.body?.items : null
         }
     }
 }

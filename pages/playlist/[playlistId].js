@@ -25,7 +25,7 @@ export async function getServerSideProps(context) {
 
     return {
         props: {
-            playlist: data?.body
+            playlist: data?.body ? data?.body : null
         }
     }
 }

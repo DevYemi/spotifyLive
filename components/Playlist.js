@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { getSession, useSession } from 'next-auth/react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { debounce, shuffle } from 'lodash'
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { playlistsIdState, playlistState } from '../globalState/playlistsAtom';
@@ -8,11 +8,15 @@ import Songs from './Songs'
 import HeaderNav from './HeaderNav'
 import Link from 'next/link';
 import { calBodyOfWorkDuration } from '../lib/time';
-import { MusicNoteIcon, SearchCircleIcon, SearchIcon } from '@heroicons/react/solid';
-import { PencilIcon, XCircleIcon } from '@heroicons/react/outline';
+import { MusicNoteIcon, SearchIcon, XIcon } from '@heroicons/react/solid';
+import { PencilIcon } from '@heroicons/react/outline';
 import { isModalOpenState } from '../globalState/displayModalAtom';
 import useSpotify from '../customHooks/useSpotify';
 import { useRouter } from 'next/router';
+import Loading from './Loading';
+import SearchBox from './SearchBox';
+import { hasScrollReachedBottom } from '../utils';
+
 
 const colors = [
     // random colors created to be shuffled
@@ -33,10 +37,12 @@ function PlaylistInfo({ playlist }) {
     const playlistId = useRecoilValue(playlistsIdState); // Atom global state
     const [, setPlaylist] = useRecoilState(playlistState); // Atom global state
     const [, setIsModalOpen] = useRecoilState(isModalOpenState); //Atom global state
+    const [searchLoading, setSearchLoading] = useState(false) // keeps loading state
     const [foundTracks, setFoundTracks] = useState({}); // keeps state of the found Tracks
+    const searchDiv = useRef() // search Div for new tracks
+    const searchInput = useRef() // search Input for new tracks
     const router = useRouter();
     let debounceduserSearchInput = useRef() // keeps debounce function for TracksearchInput
-    console.log(foundTracks)
 
     const addTrackToPlaylist = (track) => {
         const isTrackAlreadyAdded = playlist?.tracks?.items.filter(item => item?.track?.id === track?.id)
@@ -51,21 +57,10 @@ function PlaylistInfo({ playlist }) {
 
 
     useEffect(() => {
-        // On First Render get a debounce function and set it
-        debounceduserSearchInput.current = debounce((userSearchInput) => {
-            console.log(spotifyApi.searchTracks)
-            spotifyApi.searchTracks(userSearchInput, { limit: 50 })
-                .then(function (data) {
-                    setFoundTracks(data?.body?.tracks)
-                    console.log('Search by "Love"', data.body);
-                }).catch(err => console.log(err))
-
-        }, 1000);
-    }, [spotifyApi])
-
-    useEffect(() => {
-        // shuffle colors array and select one
+        // reset this values on first render or when the playlistId changes
         setFoundTracks({})
+        if (searchInput.current) searchInput.current.value = ''
+        if (searchDiv.current) searchDiv.current.style.display = 'block'
         setColor(shuffle(colors).pop())
     }, [playlistId]);
 
@@ -81,7 +76,9 @@ function PlaylistInfo({ playlist }) {
         setPlaylist(playlist);
     }, [playlistId, session, setPlaylist, playlist]);
     return (
-        <div className='PLAYLIST flex-grow scrollbar-style text-white overflow-scroll h-[90vh]'>
+        <div
+            onScroll={(e) => playlist?.owner?.id === session?.user?.username && hasScrollReachedBottom(e, searchInput, foundTracks, '.PLAYLIST', debounceduserSearchInput)}
+            className='PLAYLIST flex-grow scrollbar-style pb-[1em] text-white overflow-scroll h-[90vh]'>
             <HeaderNav color={color} gsapTrigger={'.PLAYLIST-SECTION-1'} gsapScroller={'.PLAYLIST'} />
             <section className={`PLAYLIST-SECTION-1 flex flex-col items-center space-x-7 bg-gradient-to-b ${color} to-black  text-white p-8 md:flex-row md:items-end md:h-80`}>
                 <div
@@ -128,24 +125,17 @@ function PlaylistInfo({ playlist }) {
             </section>
             {
                 playlist?.owner?.id === session?.user?.username &&
-                <section className="PLAYLIST-SECTION-3 text-white px-8 mt-4">
+                <section ref={searchDiv} className="PLAYLIST-SECTION-3 text-white px-8 mt-4">
                     {/* SEARCH FOR NEW SONGS */}
-                    <div className='flex justify-between items-center'>
-                        <div className='md:min-w-[350px]'>
-                            <p>Lets Find Something For Your Playlist</p>
-                            <div className='mt-5 relative'>
-                                <input
-                                    onChange={(e) => debounceduserSearchInput.current(e.target.value)}
-                                    className='w-full py-2 pl-8 pr-1 rounded-md bg-[#2D2D2D] outline-none border-0 '
-                                    placeholder='Search for songs or episodes'
-                                    type="text" />
-                                <SearchIcon className='w-5 h-5 absolute text-[#6a6767] top-[11px] left-[5px] ' />
-                            </div>
-                        </div>
-                        <XCircleIcon
-                            onClick={() => document.querySelector('.PLAYLIST-SECTION-3').style.display = 'none'}
-                            className='h-10 w-10 hidden cursor-pointer md:block' />
-                    </div>
+                    <SearchBox
+                        foundTracks={foundTracks}
+                        searchInput={searchInput}
+                        setSearchLoading={setSearchLoading}
+                        setFoundTracks={setFoundTracks}
+                        parentClass={'.PLAYLIST-SECTION-3'}
+                        debounceduserSearchInput={debounceduserSearchInput}
+                    />
+
                     {
                         foundTracks?.items?.length > 0 &&
                         foundTracks?.items.map(track => (
@@ -155,7 +145,7 @@ function PlaylistInfo({ playlist }) {
                                     className='h-10 w-10 rounded-sm'
                                     src={track?.album?.images[0].url}
                                     alt='' />
-                                <p className='text-[12px] font-light'>{track?.name}</p>
+                                <p className='text-[12px] font-light max-w-[40%]'>{track?.name}</p>
                                 <button
                                     onClick={() => addTrackToPlaylist(track)}
                                     className='border border-[#ffffff] text-[#706f6f] py-2 px-4 rounded-3xl'>Add</button>
@@ -163,6 +153,18 @@ function PlaylistInfo({ playlist }) {
                         ))
 
                     }
+                    {
+                        searchLoading &&
+                        <Loading
+                            size={90}
+                            type={'Rings'}
+                            color={"#282828"}
+                            style={"flex justify-center"}
+                        />
+                    }
+
+
+
 
                 </section>
             }

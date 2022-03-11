@@ -15,6 +15,7 @@ function useSongInfo() {
 
     useEffect(() => {
         const fetchSongInfo = async () => {
+            if (!spotifyApi.getAccessToken()) return
             const trackInfo = await getCurrentPlayingTrackFromSpotify(spotifyApi)
 
             setSongInfo(trackInfo);
@@ -22,8 +23,8 @@ function useSongInfo() {
             setCurrentTrackId({ currentTrackId: trackInfo?.id, parentId: parentId ? parentId : null });
 
 
-            const { body } = await spotifyApi.getMyCurrentPlaybackState().catch(err => console.log(err));
-            setIsPlaying(body?.is_playing);
+            const data = await spotifyApi.getMyCurrentPlaybackState().catch(err => console.log(err));
+            setIsPlaying(data?.body?.is_playing);
 
         }
 

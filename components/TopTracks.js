@@ -71,6 +71,7 @@ function TopTracks({ topTracks }) {
                                 track={track}
                                 addedAt={false}
                                 order={i}
+                                type={'top-tracks'}
                                 isCreatePlaylist={isCreatePlaylist}
                                 setSelectedTracks={setSelectedTracks}
                                 selectedTracks={selectedTracks}

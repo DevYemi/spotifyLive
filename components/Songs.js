@@ -58,7 +58,7 @@ function Songs() {
                 <DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' />
             </div>
 
-            <div className='px-8 flex flex-col space-y-1'>
+            <div className='px-5 flex flex-col space-y-1 md:px-8'>
                 <div className='grid px-5 uppercase text-sm font-bold grid-cols-2 text-gray-500 pt-4 pb-1 border-b border-gray-600'>
                     <p className=''># Title</p>
 
@@ -71,10 +71,11 @@ function Songs() {
                 {
                     playlist?.tracks?.items?.map(({ track, added_at }, i) => (
                         <Song
-                            key={track?.id}
+                            key={`${track?.id} ${i}`}
                             track={track}
                             addedAt={added_at}
                             order={i}
+                            type={'playlist'}
                         />
                     ))
                 }

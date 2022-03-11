@@ -82,13 +82,19 @@ export const handleTrackSkips = (op, setCurrentTrackId, spotifyApi) => {
 
 export const getCurrentPlayingTrackFromSpotify = async (spotifyApi) => {
     // gets the track thats currently playing from spotify
-    const data = await spotifyApi.getMyCurrentPlayingTrack().catch(err => console.log(err));
-    const res = await fetch(
-        `https://api.spotify.com/v1/tracks/${data?.body?.item?.id}`,
-        { headers: { Authorization: `Bearer ${spotifyApi.getAccessToken()}` } }
-    )
+    try {
+        const data = await spotifyApi.getMyCurrentPlayingTrack().catch(err => console.log(err));
+        if (!spotifyApi.getAccessToken() || !data?.body?.item?.id) return
+        const res = await fetch(
+            `https://api.spotify.com/v1/tracks/${data?.body?.item?.id}`,
+            { headers: { Authorization: `Bearer ${spotifyApi.getAccessToken()}` } }
+        )
 
-    return await res.json();
+        return await res.json();
+    } catch (err) {
+        console.log(err)
+    }
+
 }
 
 export const toggleFollowingPlaylist = (op, playlist, setIsUserFollowingPlaylist, spotifyApi) => {
@@ -126,4 +132,30 @@ export const createNewPlaylist = (selectedTracks, router, userPlaylists, spotify
                     router.push(`/playlist/${newCreatedPlaylistId}`)
                 }).catch(err => console.log(err))
         }).catch(err => console.log(err))
+}
+
+export const removeTrackFromPlaylist = (position, playlist, router, spotifyApi) => {
+
+    // Remove tracks from a playlist at a specific position
+    console.log(playlist, position, spotifyApi)
+    spotifyApi.removeTracksFromPlaylistByPosition(playlist?.id, [position], playlist?.snapshot_id)
+        .then(function (data) {
+            router.push(router.asPath)
+            console.log(data);
+            console.log('Tracks removed from playlist!');
+        }).catch(err => console.log(err))
+}
+
+export const hasScrollReachedBottom = (e, searchInput, foundTracks, divClass, debounceduserSearchInput) => {
+    // checks if the user has scroll to the bottom of the page while searching for tracks and gets new data
+    if (searchInput.current.value === '') return
+    if (!foundTracks?.items || foundTracks?.items?.length < 1) return
+    // console.log(searchInput, foundTracks, divClass, debounceduserSearchInput)
+    const playlistDiv = document.querySelector(divClass)
+    const height = playlistDiv.offsetHeight;
+    const scrollTop = playlistDiv.scrollTop;
+    const scrollHeight = playlistDiv.scrollHeight;
+    console.log(scrollTop + height, scrollHeight)
+    let reachedBottom = scrollTop + height >= (scrollHeight + 17) || scrollTop + height === scrollHeight
+    if (reachedBottom) debounceduserSearchInput.current(e.target.value, 'next', foundTracks)
 }

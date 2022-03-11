@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'
 import { HomeIcon, SearchIcon, LibraryIcon, RssIcon } from '@heroicons/react/outline'
-import { HeartIcon, PauseIcon, PlusIcon, VolumeUpIcon } from '@heroicons/react/solid'
+import { BellIcon, HeartIcon, PauseIcon, PlusIcon, VolumeUpIcon } from '@heroicons/react/solid'
 import { useSession } from 'next-auth/react'
 import useSpotify from '../customHooks/useSpotify'
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -63,29 +63,35 @@ function Sidebar() {
                     </a>
                 </Link>
 
-                <button className='flex items-center space-x-2 hover:text-white text-[14px]'>
-                    <SearchIcon className='h-7 w-7' />
-                    <p>Search</p>
-                </button>
-                <button className='flex items-center space-x-2 hover:text-white text-[14px]'>
-                    <LibraryIcon className='h-7 w-7' />
-                    <p>Library</p>
-                </button>
+                <Link href='/search'>
+                    <a
+                        onClick={() => sidebarAnimation('CLOSE', setIsSidebarOpen)}
+                        className='flex items-center space-x-2 hover:text-white text-[14px]'>
+                        <SearchIcon className='h-7 w-7' />
+                        <p>Search</p>
+                    </a>
+                </Link>
+
                 <hr className='border-t-[0.1px] border-gray-900 ' />
                 <button
-                    onClick={() => createNewPlaylist([], router, playlists, spotifyApi)}
+                    onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen); createNewPlaylist([], router, playlists, spotifyApi); }}
                     className='flex items-center space-x-2 hover:text-white text-[14px]'>
                     <span className='p-1 rounded-sm bg-gray-300'>
                         <PlusIcon className='h-4 w-4 text-gray-900 ' />
                     </span>
                     <p>Create PLaylist</p>
                 </button>
-                <button className='flex items-center space-x-2 hover:text-white text-[14px]'>
-                    <span className='p-1 rounded-sm bg-gradient-to-br from-[#280887] to-[#6B8278] '>
-                        <HeartIcon className='h-4 w-4 text-white' />
-                    </span>
-                    <p>Liked Songs</p>
-                </button>
+                <Link href='/new-release'>
+                    <a
+                        onClick={() => sidebarAnimation('CLOSE', setIsSidebarOpen)}
+                        className='flex items-center space-x-2 hover:text-white text-[14px]'>
+                        <span className='p-1 rounded-sm bg-gradient-to-br from-[#280887] to-[#6B8278] '>
+                            <BellIcon className='h-4 w-4 text-white' />
+                        </span>
+                        <p>New Release</p>
+                    </a>
+                </Link>
+
                 <button className='flex items-center space-x-2 hover:text-white text-[14px]'>
                     <span className='p-1 rounded-sm bg-[#004638] '>
                         <RssIcon className='h-4 w-4 text-[#159643]' />
@@ -97,8 +103,8 @@ function Sidebar() {
             {/* PLAYLIST */}
             <section className="PLAYLIST-SECTION pl-5 pr-2 pb-5 space-y-4 scrollbar-style h-[191px] overflow-y-scroll flex-1">
                 {
-                    playlists?.map(playlist => (
-                        <Link key={playlist?.id} href={`/playlist/${playlist?.id}`}>
+                    playlists?.map((playlist, i) => (
+                        <Link key={`${playlist?.id} ${i}`} href={`/playlist/${playlist?.id}`}>
                             <a
                                 onClick={() => sidebarAnimation('CLOSE', setIsSidebarOpen)}
                                 className="flex justify-between items-center">
