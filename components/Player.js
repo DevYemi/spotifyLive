@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react'
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
 import useSpotify from '../customHooks/useSpotify'
 import useSongInfo from '../customHooks/useSongInfo'
@@ -11,10 +11,10 @@ import { handlePlayAndPauseOfPlayer, handleTrackSkips, toggleTrackRepeat } from 
 import { playlistState } from '../globalState/playlistsAtom';
 
 function Player() {
+    console.log('pLAYER');
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
     const { data: session } = useSession(); // get the current logged in user session
-    const playlist = useRecoilValue(playlistState); // Atom global state
-    const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
+    const setCurrentTrackId = useSetRecoilState(currentTrackIdState); // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const [volume, setVolume] = useState(50); // keeps state for the current volume range the user is on
     const [isTrackOnRepeat, setIsTrackOnRepeat] = useState(false); // keeps state if the current playing track is on repeat
@@ -24,7 +24,7 @@ function Player() {
     const debouncedAdjustVolume = useCallback((volume) => {
         // debounced function created with lodash
         const debouncedReturnedFromLodash = debounce((volume) => {
-            spotifyApi.setVolume(volume).catch(err => console.log(err));
+            spotifyApi.setVolume(volume).catch(err => console.log(err?.body));
 
         }, 500);
         debouncedReturnedFromLodash(volume);

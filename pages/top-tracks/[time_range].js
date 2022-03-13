@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import spotifyApi from "../../lib/spotify";
 import { getSession } from "next-auth/react";
 import TopTracks from '../../components/TopTracks';
 
 
 function TopTracksScreen({ topTracks }) {
+
     return <TopTracks topTracks={topTracks} />
 }
 

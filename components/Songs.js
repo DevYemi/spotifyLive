@@ -8,10 +8,13 @@ import Song from './Song'
 import useSpotify from '../customHooks/useSpotify'
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom'
 import { useSession } from 'next-auth/react'
+import useSongInfo from '../customHooks/useSongInfo'
 
 function Songs() {
+    // console.log('SONGS');
     const { data: session } = useSession();  // get the current logged in user session
     const spotifyApi = useSpotify();
+    const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
     const playlist = useRecoilValue(playlistState);  // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
@@ -74,6 +77,8 @@ function Songs() {
                             key={`${track?.id} ${i}`}
                             track={track}
                             addedAt={added_at}
+                            songInfo={songInfo}
+                            isPlaying={isPlaying}
                             order={i}
                             type={'playlist'}
                         />

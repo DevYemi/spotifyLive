@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import { topTracksState } from '../globalState/topTracksAtom'
 
 function HeaderNav({ color, gsapTrigger, gsapScroller }) {
+    console.log('haeder nav');
     const { data: session } = useSession();  // get the current logged in user session
     const spotifyApi = useSpotify();
     const playlist = useRecoilValue(playlistState) // Atom global state 

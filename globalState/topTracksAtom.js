@@ -6,3 +6,13 @@ export const topTracksState = atom({
     key: " topTracksState",
     default: null
 })
+export const topTrackSelectedState = atom({
+    // Global state of the current Top Tracks displayed
+    key: "topTrackSelectedState",
+    default: []
+})
+export const topTrackIsCreatePlaylistState = atom({
+    // Global state of the current Top Tracks displayed
+    key: "topTrackIsCreatePlaylistState",
+    default: []
+})

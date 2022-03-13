@@ -1,5 +1,6 @@
 export const playSong = (track, setCurrentTrackId, setIsPlaying, playlistId, spotifyApi) => {
     // starts playing a song when its clicked on
+
     spotifyApi.play({
         uris: [track.uri]
     }).then(() => {
@@ -41,6 +42,7 @@ export const startPlayingListOfSongs = async (listOfSongs, index, setCurrentTrac
 }
 
 export const handlePlayAndPauseOfPlayer = async (spotifyApi, setIsPlaying) => {
+
     // handle pause and play event in the music player
     const data = await spotifyApi.getMyCurrentPlaybackState().catch(err => console.log(err));
     if (data?.body?.is_playing) {
@@ -135,7 +137,6 @@ export const createNewPlaylist = (selectedTracks, router, userPlaylists, spotify
 }
 
 export const removeTrackFromPlaylist = (position, playlist, router, spotifyApi) => {
-
     // Remove tracks from a playlist at a specific position
     console.log(playlist, position, spotifyApi)
     spotifyApi.removeTracksFromPlaylistByPosition(playlist?.id, [position], playlist?.snapshot_id)
@@ -155,7 +156,6 @@ export const hasScrollReachedBottom = (e, searchInput, foundTracks, divClass, de
     const height = playlistDiv.offsetHeight;
     const scrollTop = playlistDiv.scrollTop;
     const scrollHeight = playlistDiv.scrollHeight;
-    console.log(scrollTop + height, scrollHeight)
     let reachedBottom = scrollTop + height >= (scrollHeight + 17) || scrollTop + height === scrollHeight
     if (reachedBottom) debounceduserSearchInput.current(e.target.value, 'next', foundTracks)
 }

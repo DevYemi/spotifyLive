@@ -3,23 +3,34 @@ import HeaderNav from './HeaderNav'
 import Song from './Song';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { playlistState, userPlaylistsState } from '../globalState/playlistsAtom';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { isNewPlaylistCreatedState, playlistState, userPlaylistsState } from '../globalState/playlistsAtom';
 import { ClipboardListIcon, ClockIcon } from '@heroicons/react/solid'
-import { topTracksState } from '../globalState/topTracksAtom';
+import { topTrackIsCreatePlaylistState, topTrackSelectedState, topTracksState } from '../globalState/topTracksAtom';
 import { createNewPlaylist } from '../utils';
 import useSpotify from '../customHooks/useSpotify';
+import useSongInfo from '../customHooks/useSongInfo';
+import { isPlayingState } from '../globalState/songAtom';
+
 
 function TopTracks({ topTracks }) {
+    console.log('TOP-TRACKS');
     const spotifyApi = useSpotify(); // custom hooks
-    const [, setTopTracks] = useRecoilState(topTracksState) // Atom global state
-    const [isCreatePlaylist, setIsCreatePlaylist] = useState(false); // keeps state if a user clicked on the create playlist icon
-    const [selectedTracks, setSelectedTracks] = useState([]); // keeps state of all the selected playlist by the user
+    const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
+    const setTopTracks = useSetRecoilState(topTracksState) // Atom global state
+    const isPlaying = useRecoilValue(isPlayingState); // Atom global state
+    const setIsNewPlaylistCreated = useSetRecoilState(isNewPlaylistCreatedState); // Atom global state
+    const [topTrackIsCreatePlaylist, setTopTrackIsCreatePlaylist] = useRecoilState(topTrackIsCreatePlaylistState); // keeps state if a user clicked on the create playlist icon
+    const [selectedTracks, setSelectedTracks] = useRecoilState(topTrackSelectedState); // keeps state of all the selected playlist by the user
     const userPlaylists = useRecoilValue(userPlaylistsState); // Atom Global State 
     const router = useRouter();
     const timeRangeType = router?.query?.time_range
 
-
+    const handleCreatePlaylistClick = async () => {
+        setSelectedTracks([]);
+        setIsNewPlaylistCreated(true);
+        createNewPlaylist(selectedTracks, router, userPlaylists, spotifyApi);
+    }
     useEffect(() => {
         // set Top Tracks Lists to global state
         setTopTracks(topTracks)
@@ -50,10 +61,10 @@ function TopTracks({ topTracks }) {
                     </Link>
                 </div>
                 <div
-                    onClick={() => setIsCreatePlaylist(!isCreatePlaylist)}
+                    onClick={() => { setTopTrackIsCreatePlaylist(!topTrackIsCreatePlaylist); }}
                     className='flex items-center justify-center mx-auto my-10 w-fit py-3 px-2 rounded-md bg-[#111827] cursor-pointer hover:bg-[#1e2636]'>
                     <ClipboardListIcon className='h-5 w-5 text-gray-300' />
-                    <p className='ml-3 text-sm text-gray-300'>{isCreatePlaylist ? 'Cancel' : 'Create a Playlist From Your Favourite Tracks'}</p>
+                    <p className='ml-3 text-sm text-gray-300'>{topTrackIsCreatePlaylist ? 'Cancel' : 'Create a Playlist From Your Favourite Tracks'}</p>
                 </div>
                 <div className='px-8 flex flex-col space-y-1'>
                     <div className='grid px-5 uppercase text-sm font-bold grid-cols-2 text-gray-500 pt-4 pb-1 border-b border-gray-600'>
@@ -65,14 +76,17 @@ function TopTracks({ topTracks }) {
                         </div>
                     </div>
                     {
+                        topTracks.length > 0 &&
                         topTracks.map((track, i) => (
                             <Song
-                                key={track?.id}
+                                key={`${track?.id} ${i}`}
                                 track={track}
                                 addedAt={false}
                                 order={i}
+                                songInfo={songInfo}
+                                isPlaying={isPlaying}
                                 type={'top-tracks'}
-                                isCreatePlaylist={isCreatePlaylist}
+                                topTrackIsCreatePlaylist={topTrackIsCreatePlaylist}
                                 setSelectedTracks={setSelectedTracks}
                                 selectedTracks={selectedTracks}
                             />
@@ -82,7 +96,7 @@ function TopTracks({ topTracks }) {
                 {
                     selectedTracks.length > 0 &&
                     <span
-                        onClick={() => createNewPlaylist(selectedTracks, router, userPlaylists, spotifyApi)}
+                        onClick={handleCreatePlaylistClick}
                         className='fixed p-5 text-gray-300 text-xs rounded-full bg-[#1ED760] w-fit bottom-[109px] right-5'>Create</span>
                 }
 

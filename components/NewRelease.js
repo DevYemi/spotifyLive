@@ -4,7 +4,7 @@ import React from 'react'
 import HeaderNav from './HeaderNav'
 
 function NewRelease({ newRelease }) {
-
+    console.log('NR');
     return (
         <div
             className='NEW-RELEASE-WR text-white flex-1 overflow-y-scroll pb-[1em] scrollbar-style h-[90vh]'>
@@ -13,7 +13,7 @@ function NewRelease({ newRelease }) {
                 <h1 className='text-[3rem] text-center md:text-[3rem]'>Newly Release Jams</h1>
                 <div className='flex flex-wrap justify-center '>
                     {newRelease?.albums?.items.length > 0 && newRelease?.albums?.items.map(track => (
-                        <Link key={track?.id} href={`/checkout/${track?.id}`}>
+                        <Link key={track?.id} href={`/album/${track?.id}`}>
                             <a className='group relative bg-[#181818] w-fit p-3 rounded-lg mx-1 space-y-2 mb-4 md:p-4 hover:bg-[#292828]'>
                                 <span className=' absolute p-1 bg-[#129b42] top-2 left-2 text-[6px]  rounded-sm font-light z-[2] md:text-[9px]'>
                                     {track?.total_tracks > 1 ? 'Album' : 'Single'}

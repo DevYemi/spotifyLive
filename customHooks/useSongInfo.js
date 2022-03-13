@@ -1,5 +1,5 @@
 import React from 'react'
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import useSpotify from './useSpotify'
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom'
 import { useState } from 'react';
@@ -10,14 +10,14 @@ import { getCurrentPlayingTrackFromSpotify } from '../utils';
 function useSongInfo() {
     const spotifyApi = useSpotify();
     const [{ currentTrackId, parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState);
-    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
+    const setIsPlaying = useSetRecoilState(isPlayingState); // Atom global state
     const [songInfo, setSongInfo] = useState();
 
     useEffect(() => {
         const fetchSongInfo = async () => {
             if (!spotifyApi.getAccessToken()) return
-            const trackInfo = await getCurrentPlayingTrackFromSpotify(spotifyApi)
-
+            const trackInfo = await getCurrentPlayingTrackFromSpotify(spotifyApi).catch(err => console.log(err));
+            // console.log(trackInfo, 'from spoty')
             setSongInfo(trackInfo);
 
             setCurrentTrackId({ currentTrackId: trackInfo?.id, parentId: parentId ? parentId : null });

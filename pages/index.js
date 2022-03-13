@@ -1,15 +1,10 @@
 import { EyeIcon, PlayIcon } from "@heroicons/react/solid";
-import { getSession, useSession } from "next-auth/react";
-import { useEffect } from "react"
-import useSpotify from "../customHooks/useSpotify";
-import spotifyApi from "../lib/spotify";
 import HeaderNav from '../components/HeaderNav'
 import Link from "next/link";
 
 
-const Home = ({ topTracks, topArtists }) => {
-  const spotifyApi = useSpotify();
-  const { data: session } = useSession(); // get the current logged in user session
+const Home = () => {
+
 
   return (
     <div className="HOME-WR text-white flex-1 overflow-y-scroll scrollbar-style">

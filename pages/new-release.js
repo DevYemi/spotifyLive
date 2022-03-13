@@ -4,6 +4,7 @@ import { getSession } from "next-auth/react";
 import NewRelease from '../components/NewRelease';
 
 function NewReleaseScreen({ newRelease }) {
+
     return (
         <NewRelease newRelease={newRelease} />
     )

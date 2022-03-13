@@ -5,6 +5,7 @@ import React from 'react'
 import HeaderNav from './HeaderNav'
 
 function TopArtists({ topArtists }) {
+    console.log('TOP-ARTISTS');
     const router = useRouter();
     const timeRangeType = router?.query?.time_range
     console.log(topArtists)

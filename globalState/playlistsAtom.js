@@ -7,12 +7,17 @@ export const userPlaylistsState = atom({
 })
 export const playlistState = atom({
     // Global state of the current playlist that is currently on the viewport
-    key: " playlistState",
+    key: "playlistState",
     default: null
 })
 export const playlistsIdState = atom({
     // keeps state of the id of the play that is currently on the viewport
     key: "playlistsIdState",
     default: null
+})
+export const isNewPlaylistCreatedState = atom({
+    // keeps state if a new playlist has been created
+    key: "isNewPlaylistCreatedState",
+    default: false
 })
 

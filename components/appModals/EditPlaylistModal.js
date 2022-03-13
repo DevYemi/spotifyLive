@@ -53,14 +53,15 @@ const EditPlaylistTextField = styled(TextField)({
 
 
 function EditPlaylistModal({ handleModalClose }) {
-    const [isModalOpen, setIsModalOpen] = useRecoilState(isModalOpenState); // Atom global state
-    const spotifyApi = useSpotify()
-    const [playlist, setPlaylist] = useRecoilState(playlistState) // Atom global state
+    const isModalOpen = useRecoilValue(isModalOpenState); // Atom global state
+    const spotifyApi = useSpotify();
+    const playlist = useRecoilValue(playlistState) // Atom global state
     const [nameInput, setNameInput] = useState(playlist ? playlist?.name : '') // keeps state of the typed name by the user
     const [desInput, setDesInput] = useState(playlist ? playlist?.description : '') // keeps state of the typed description by the user
     const ulElement = useRef(null); // reference to the ul tag element thats aprent to the image modification 
     const router = useRouter()
     const [customImgPicked, setCustomImgPicked] = useState(); // keeps state of the new picked spotify cover image
+
     const openDotsHorizontalClick = (e) => {
         const currentView = window?.getComputedStyle(ulElement.current).display;
         if (currentView === 'none') return ulElement.current.style.display = 'block'

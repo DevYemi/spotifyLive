@@ -4,7 +4,7 @@ import { getSession } from "next-auth/react";
 import TopArtists from '../../components/TopArtists'
 
 function TopArtistsScreen({ topArtists }) {
-    console.log(topArtists)
+
     return <TopArtists topArtists={topArtists} />
 }
 

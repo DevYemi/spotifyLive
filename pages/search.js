@@ -6,6 +6,7 @@ import Loading from '../components/Loading'
 import SearchBox from '../components/SearchBox'
 import { hasScrollReachedBottom } from '../utils'
 
+
 function SearchScreen() {
     const [searchLoading, setSearchLoading] = useState(false) // keeps loading state
     const [foundTracks, setFoundTracks] = useState({}); // keeps state of the found Tracks
