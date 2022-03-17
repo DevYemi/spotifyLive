@@ -11,7 +11,7 @@ import { handlePlayAndPauseOfPlayer, handleTrackSkips, toggleTrackRepeat } from 
 import { playlistState } from '../globalState/playlistsAtom';
 
 function Player() {
-    console.log('pLAYER');
+    // console.log('pLAYER');
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
     const { data: session } = useSession(); // get the current logged in user session
     const setCurrentTrackId = useSetRecoilState(currentTrackIdState); // Atom global state
@@ -37,14 +37,14 @@ function Player() {
         }
     }, [volume, debouncedAdjustVolume]);
 
-    useEffect(() => {
-        // on every first render set the volume to 50
-        if (spotifyApi.getAccessToken()) {
-            setVolume(50);
-        }
-    }, [spotifyApi, session,])
+    // useEffect(() => {
+    //     // on every first render set the volume to 50
+    //     if (spotifyApi.getAccessToken()) {
+    //         setVolume(50);
+    //     }
+    // }, [spotifyApi, session,])
     return (
-        <div className='text-white h-24 bg-gradient-to-b from-black to-gray-900 flex items-center text-xs md:text-base md:px-8 md:justify-between'>
+        <div className='text-white h-24 bg-gradient-to-b  from-black to-gray-900 flex items-center text-xs md:text-base md:px-8 md:justify-between'>
             {/* LEFT */}
             <div className='flex items-center space-x-4 max-w-[80px] md:max-w-[100%]'>
                 <img

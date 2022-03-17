@@ -35,6 +35,7 @@ function AppLayout({ children }) {
             router.events.off('routeChangeError', handleStop);
         }
     }, [router, setRoutingPageLoading, setPreventRoutingPageLoading, preventRoutingPageLoading])
+
     if (session) {
         return (
             <div className="bg-black h-screen overflow-hidden">

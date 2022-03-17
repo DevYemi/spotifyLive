@@ -10,7 +10,7 @@ import { topTrackIsCreatePlaylistState, topTrackSelectedState, topTracksState } 
 import { createNewPlaylist } from '../utils';
 import useSpotify from '../customHooks/useSpotify';
 import useSongInfo from '../customHooks/useSongInfo';
-import { isPlayingState } from '../globalState/songAtom';
+import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
 
 
 function TopTracks({ topTracks }) {
@@ -19,12 +19,14 @@ function TopTracks({ topTracks }) {
     const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
     const setTopTracks = useSetRecoilState(topTracksState) // Atom global state
     const isPlaying = useRecoilValue(isPlayingState); // Atom global state
+    const { parentId } = useRecoilValue(currentTrackIdState); // Atom global state
     const setIsNewPlaylistCreated = useSetRecoilState(isNewPlaylistCreatedState); // Atom global state
     const [topTrackIsCreatePlaylist, setTopTrackIsCreatePlaylist] = useRecoilState(topTrackIsCreatePlaylistState); // keeps state if a user clicked on the create playlist icon
     const [selectedTracks, setSelectedTracks] = useRecoilState(topTrackSelectedState); // keeps state of all the selected playlist by the user
     const userPlaylists = useRecoilValue(userPlaylistsState); // Atom Global State 
     const router = useRouter();
     const timeRangeType = router?.query?.time_range
+
 
     const handleCreatePlaylistClick = async () => {
         setSelectedTracks([]);
@@ -76,7 +78,7 @@ function TopTracks({ topTracks }) {
                         </div>
                     </div>
                     {
-                        topTracks.length > 0 &&
+                        topTracks?.length > 0 &&
                         topTracks.map((track, i) => (
                             <Song
                                 key={`${track?.id} ${i}`}
@@ -85,6 +87,7 @@ function TopTracks({ topTracks }) {
                                 order={i}
                                 songInfo={songInfo}
                                 isPlaying={isPlaying}
+                                parentId={parentId}
                                 type={'top-tracks'}
                                 topTrackIsCreatePlaylist={topTrackIsCreatePlaylist}
                                 setSelectedTracks={setSelectedTracks}

@@ -11,8 +11,9 @@ import { playlistState } from '../globalState/playlistsAtom';
 import Loading from './Loading';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import ExplicitIcon from '@mui/icons-material/Explicit';
 
-function Song({ order, track, addedAt, type, songInfo, isPlaying, ...props }) {
+function Song({ order, track, addedAt, type, songInfo, isPlaying, parentId, ...props }) {
     console.log('SONG');
     const { data: session } = useSession();  // get the current logged in user session
     const spotifyApi = useSpotify();
@@ -21,7 +22,6 @@ function Song({ order, track, addedAt, type, songInfo, isPlaying, ...props }) {
     const setCurrentTrackId = useSetRecoilState(currentTrackIdState); // Atom global state
     const [isTrackSelected, setIsTrackSelected] = useState(false); // keeps state if a track has been seleceted for a playlist
     const router = useRouter();
-
 
     useEffect(() => {
         // reset all seceted tracks to false once is user cancle playlist selection
@@ -73,7 +73,7 @@ function Song({ order, track, addedAt, type, songInfo, isPlaying, ...props }) {
                             //else display list-index and playIcon
                             <>
                                 <p className='group-hover:hidden'>{order + 1}</p>
-                                <p onClick={() => playSong(track, setCurrentTrackId, setIsPlaying, playlist?.id, spotifyApi)}><PlayIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
+                                <p onClick={() => playSong(track, setCurrentTrackId, setIsPlaying, playlist?.id, parentId, spotifyApi)}><PlayIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
                             </>
                 }
 
@@ -84,18 +84,24 @@ function Song({ order, track, addedAt, type, songInfo, isPlaying, ...props }) {
                     alt="Track Picture" />
                 <div className='w-fit'>
                     <p className='w-36 lg:w-64 max-w-[60px] truncate text-white text-sm md:max-w-[200px] lg:max-w-[100%]'>{track?.name}</p>
-                    <p className='group-hover:text-white text-sm w-[100%] max-w-[50px] truncate md:max-w-[150px] lg:max-w-[250px]'>{
-                        track?.artists.map((artist, i) => (
-                            <Link key={`${artist?.id} ${i}`} href={'/'}>
-                                <a className='hover:underline cursor-pointer w-max inline'>{`${artist?.name} ${track?.artists.length > (i + 1) ? "," : ""}`}</a>
-                            </Link>
-                        ))
-                    }</p>
+                    <p className='group-hover:text-white text-sm w-[100%] max-w-[110px] truncate md:max-w-[160px] lg:max-w-[250px]'>
+                        {track?.explicit && <ExplicitIcon className='!h-4 !w-4 mr-1' />}
+                        {
+                            track?.artists.map((artist, i) => (
+                                <Link key={`${artist?.id} ${i}`} href={artist?.external_urls?.spotify}>
+                                    <a
+                                        target="_blank"
+                                        className='hover:underline cursor-pointer w-max inline'>{`${artist?.name} ${track?.artists.length >
+                                            (i + 1) ? "," : ""}`}
+                                    </a>
+                                </Link>
+                            ))
+                        }</p>
                 </div>
             </div>
 
             <div className='flex items-center justify-between ml-auto md:ml-0'>
-                <Link href={'/'}>
+                <Link href={`/album/${track?.album?.id}`}>
                     <a className='group-hover:text-white w-40  hidden text-[13px] md:min-w-[151px] md:inline hover:underline'>
                         <span>{track?.album?.name}</span>
                     </a>

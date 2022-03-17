@@ -1,10 +1,15 @@
-export const playSong = (track, setCurrentTrackId, setIsPlaying, playlistId, spotifyApi) => {
+export const playSong = async (track, setCurrentTrackId, setIsPlaying, listOfSongsId, parentId, spotifyApi) => {
     // starts playing a song when its clicked on
+    const data = await spotifyApi?.getMyCurrentPlaybackState().catch(err => console.log(err)); // get from spotify the current playback state
 
+    if (!data?.body?.is_playing && listOfSongsId === parentId) {
+        // if there is a currentTrack paused and its a Track of the current displayed listOfSongs, resume the song from where it stopped
+        return handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying);
+    }
     spotifyApi.play({
         uris: [track.uri]
     }).then(() => {
-        setCurrentTrackId({ currentTrackId: track.id, parentId: playlistId });
+        setCurrentTrackId({ currentTrackId: track.id, parentId: listOfSongsId });
         setIsPlaying(true);
     }).catch(err => console.log(err));
 
@@ -13,16 +18,16 @@ export const playSong = (track, setCurrentTrackId, setIsPlaying, playlistId, spo
 export const startPlayingListOfSongs = async (listOfSongs, index, setCurrentTrackId, setIsPlaying, parentId, spotifyApi) => {
     // starts playing a listOfSongs from the first active song when the user click on PLAY or Resume if there currently playing one
     const listOfSongsSongs = listOfSongs?.tracks?.items // gets all the songs on the listOfSongs
-    const track = listOfSongsSongs[index]?.track; // gets a specific song based on the index passed
+    const track = listOfSongs?.type === 'playlist' ? listOfSongsSongs[index]?.track : listOfSongsSongs[index]  // gets a specific song based on the index passed
 
-    const data = await spotifyApi.getMyCurrentPlaybackState().catch(err => console.log(err)); // get from spotify the current playback state
+    const data = await spotifyApi?.getMyCurrentPlaybackState().catch(err => console.log(err)); // get from spotify the current playback state
 
     if (!data?.body?.is_playing && listOfSongs?.id === parentId) {
         // if there is a currentTrack paused and its a Track of the current displayed listOfSongs, resume the song from where it stopped
 
         handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying);
     }
-    else if (listOfSongsSongs.length > index) {
+    else if (listOfSongsSongs?.length > index) {
         // else start listOfSongs from the first song thats available
 
         spotifyApi.play({
@@ -112,6 +117,43 @@ export const toggleFollowingPlaylist = (op, playlist, setIsUserFollowingPlaylist
         spotifyApi.unfollowPlaylist(playlist?.id)
             .then(function (data) {
                 setIsUserFollowingPlaylist(false);
+            }).catch(err => console.log(err))
+    }
+
+}
+export const toggleSavedAlbum = (op, album, setIsAlbumSaved, spotifyApi) => {
+    // Toggle user saved album 
+    if (op === "SAVE") {
+        // Save an album to user libary
+        spotifyApi.addToMySavedAlbums([album?.id])
+            .then(() => {
+                setIsAlbumSaved(true);
+            }).catch(err => console.log(err))
+    } else if (op === "UN-SAVE") {
+        // Unsave an album from a user libary
+        spotifyApi.removeFromMySavedAlbums([album?.id])
+            .then(() => {
+                setIsAlbumSaved(false);
+            }).catch(err => console.log(err))
+    }
+
+}
+
+export const toggleSavedTrack = (op, track, setIsTrackSaved, spotifyApi) => {
+    // Toggle user saved track 
+    if (op === "SAVE") {
+        // Save an track to user libary
+        spotifyApi.containsMySavedTracks([track?.id])
+            .then(() => {
+                console.log('SAVE')
+                setIsTrackSaved(true);
+            }).catch(err => console.log(err))
+    } else if (op === "UN-SAVE") {
+        // Unsave an track from a user libary
+        spotifyApi.removeFromMySavedTracks([track?.id])
+            .then(() => {
+                console.log('UN-SAVE');
+                setIsTrackSaved(false);
             }).catch(err => console.log(err))
     }
 

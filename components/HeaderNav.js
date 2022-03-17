@@ -14,7 +14,7 @@ import { useRouter } from 'next/router';
 import { topTracksState } from '../globalState/topTracksAtom'
 
 function HeaderNav({ color, gsapTrigger, gsapScroller }) {
-    console.log('haeder nav');
+    // console.log('haeder nav');
     const { data: session } = useSession();  // get the current logged in user session
     const spotifyApi = useSpotify();
     const playlist = useRecoilValue(playlistState) // Atom global state 
@@ -59,10 +59,10 @@ function HeaderNav({ color, gsapTrigger, gsapScroller }) {
             <div className={`HEADER-NAV fixed p-3 flex items-center w-[100%]`}>
                 <div className="NAV-ICONS flex items-center  flex-1 ">
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black'>
-                        <ChevronLeftIcon className='h-6 w-6' />
+                        <ChevronLeftIcon onClick={() => history.back()} className='h-6 w-6' />
                     </span>
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black ml-4'>
-                        <ChevronRightIcon className='h-6 w-6' />
+                        <ChevronRightIcon onClick={() => history.forward()} className='h-6 w-6' />
                     </span>
                     <div className={`HEADER-NAV-ICON opacity-0 ${gsapTrigger === '.TOP-ARTISTS' && 'hidden'}`}>
                         {

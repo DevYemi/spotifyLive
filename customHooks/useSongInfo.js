@@ -19,7 +19,7 @@ function useSongInfo() {
             const trackInfo = await getCurrentPlayingTrackFromSpotify(spotifyApi).catch(err => console.log(err));
             // console.log(trackInfo, 'from spoty')
             setSongInfo(trackInfo);
-
+            console.log(trackInfo)
             setCurrentTrackId({ currentTrackId: trackInfo?.id, parentId: parentId ? parentId : null });
 
 

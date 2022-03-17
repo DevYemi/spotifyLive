@@ -79,6 +79,7 @@ function Songs() {
                             addedAt={added_at}
                             songInfo={songInfo}
                             isPlaying={isPlaying}
+                            parentId={parentId}
                             order={i}
                             type={'playlist'}
                         />

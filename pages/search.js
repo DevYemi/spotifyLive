@@ -38,6 +38,7 @@ function SearchScreen() {
                     foundTracks?.items?.length > 0 &&
                     <div className='max-w-[1220px] mx-auto'>
                         {foundTracks?.items.map(track => (
+
                             <div key={track?.id}
                                 className='flex justify-between items-center my-5 md:px-8 '>
                                 <img
@@ -45,7 +46,7 @@ function SearchScreen() {
                                     src={track?.album?.images[0].url}
                                     alt='' />
                                 <p className='text-[10px] font-light max-w-[40%] md:text-sm'>{track?.name}</p>
-                                <Link href='/'>
+                                <Link href={`/album/${track?.album?.id}`}>
                                     <a className='border border-[#ffffff] text-[#706f6f] py-2 px-2 rounded-3xl text-[10px] md:px-4 md:text-sm'>
                                         Check Out
                                     </a>

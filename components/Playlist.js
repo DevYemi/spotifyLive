@@ -77,6 +77,15 @@ function PlaylistInfo({ playlist }) {
         // set playlist details to global state on first render
         setPlaylist(playlist);
     }, [session, setPlaylist, playlist]);
+
+    useEffect(() => {
+        spotifyApi.getMe()
+            .then(function (data) {
+                console.log('Some information about the authenticated user', data.body);
+            }, function (err) {
+                console.log('Something went wrong!', err);
+            });
+    }, [spotifyApi])
     return (
         <div
             onScroll={(e) => playlist?.owner?.id === session?.user?.username && hasScrollReachedBottom(e, searchInput, foundTracks, '.PLAYLIST', debounceduserSearchInput)}
@@ -90,13 +99,17 @@ function PlaylistInfo({ playlist }) {
                         className='h-full object-cover'
                         src={playlist?.images[0]?.url}
                         alt='' />
-                    <div className='absolute group-hover:bg-[#28282859] w-full h-full flex justify-center items-center'>
-                        {
-                            !playlist?.images[0]?.url && <MusicNoteIcon className='h-12 w-12 text-[#7F7F7F] group-hover:hidden' />
-                        }
+                    {
+                        playlist?.owner?.id === session?.user?.username &&
+                        <div className='absolute group-hover:bg-[#28282859] w-full h-full flex justify-center items-center'>
+                            {
+                                !playlist?.images[0]?.url && <MusicNoteIcon className='h-12 w-12 text-[#7F7F7F] group-hover:hidden' />
+                            }
 
-                        <PencilIcon className='h-12 w-12 hidden text-[#7F7F7F] group-hover:block' />
-                    </div>
+                            <PencilIcon className='h-12 w-12 hidden text-[#7F7F7F] group-hover:block' />
+                        </div>
+                    }
+
 
                 </div>
 
@@ -109,8 +122,8 @@ function PlaylistInfo({ playlist }) {
                         <p className='text-sm mt-4 text-gray-400'>{playlist?.description}</p>
                     </div>
                     <span className='text-sm font-light hover:underline '>
-                        <Link href="/">
-                            <a>{playlist?.owner?.display_name}</a>
+                        <Link href={playlist?.owner?.external_urls?.spotify}>
+                            <a target={'_blank'}>{playlist?.owner?.display_name}</a>
                         </Link>
                     </span>
                     <span className='text-2xl mr-1 ml-1 '>.</span>
