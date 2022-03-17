@@ -4,7 +4,6 @@ import MusicCard from './MusicCard'
 
 function NewRelease({ newRelease }) {
     // console.log('NR');
-    console.log(newRelease)
     return (
         <div
             className='NEW-RELEASE-WR text-white flex-1 overflow-y-scroll pb-[1em] scrollbar-style h-[90vh]'>

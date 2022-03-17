@@ -14,7 +14,7 @@ import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
 
 
 function TopTracks({ topTracks }) {
-    console.log('TOP-TRACKS');
+    // console.log('TOP-TRACKS');
     const spotifyApi = useSpotify(); // custom hooks
     const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
     const setTopTracks = useSetRecoilState(topTracksState) // Atom global state

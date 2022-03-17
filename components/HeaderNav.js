@@ -12,6 +12,7 @@ import useSpotify from '../customHooks/useSpotify';
 import { isSidebarOpenState } from '../globalState/sidebarAtom'
 import { useRouter } from 'next/router';
 import { topTracksState } from '../globalState/topTracksAtom'
+import { albumDetailsState } from '../globalState/albumAtom'
 
 function HeaderNav({ color, gsapTrigger, gsapScroller }) {
     // console.log('haeder nav');
@@ -19,23 +20,27 @@ function HeaderNav({ color, gsapTrigger, gsapScroller }) {
     const spotifyApi = useSpotify();
     const playlist = useRecoilValue(playlistState) // Atom global state 
     const topTracks = useRecoilValue(topTracksState) // Atom global state 
+    const albumDetails = useRecoilValue(albumDetailsState) // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     const [isSidebarOpen, setIsSidebarOpen] = useRecoilState(isSidebarOpenState); // Atom global state
     const [headerListOfSongsDetails, setHeaderListOfSongsDetails] = useState({}); // keeps state of the details of the body of work thats currently playing
     const { pathname, query: { time_range } } = useRouter()
     const handlePlay = () => {
-        if (pathname.includes('playlist')) startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)
+        if (pathname.includes('playlist')) return startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
+        if (pathname.includes('album')) return startPlayingListOfSongs(albumDetails, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
         if (pathname.includes('top-tracks')) {
             const idType = time_range === 'short_term' ? 'short_term' : time_range === 'medium_term' ? 'medium_term' : 'long_term';
             const modifyTopTracks = {
                 // modify top Tracks data structure to fit playlist data structure so as to use the same function
                 id: idType,
+                type: 'top-tracks',
                 tracks: { items: topTracks.map(track => ({ track })) }
             }
+            // console.log(modifyTopTracks)
             startPlayingListOfSongs(modifyTopTracks, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
         }
-        if (pathname.includes('album')) startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)
+
 
     }
     useEffect(() => {
@@ -51,8 +56,8 @@ function HeaderNav({ color, gsapTrigger, gsapScroller }) {
 
         if (pathname.includes('playlist')) setHeaderListOfSongsDetails({ name: playlist?.name, id: playlist?.id })
         if (pathname.includes('top-tracks')) setHeaderListOfSongsDetails({ name: `Top Tracks ${topTrackNameType}`, id: topTrackidType })
-        if (pathname.includes('album')) setHeaderListOfSongsDetails('Album')
-    }, [pathname, setHeaderListOfSongsDetails, playlist, topTracks, time_range])
+        if (pathname.includes('album')) setHeaderListOfSongsDetails({ name: albumDetails?.name, id: albumDetails?.id })
+    }, [pathname, setHeaderListOfSongsDetails, playlist, topTracks, time_range, albumDetails])
 
     return (
         <header className='relative z-10'>

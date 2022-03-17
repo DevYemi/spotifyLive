@@ -47,7 +47,6 @@ function PlaylistInfo({ playlist }) {
 
     const addTrackToPlaylist = (track) => {
         const isTrackAlreadyAdded = playlist?.tracks?.items.filter(item => item?.track?.id === track?.id)
-        console.log(isTrackAlreadyAdded)
         if (isTrackAlreadyAdded.length > 0) return
         spotifyApi.addTracksToPlaylist(playlist?.id, [track?.uri])
             .then(function (data) {

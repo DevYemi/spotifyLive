@@ -1,3 +1,5 @@
+import { popUpMssgAnimation } from "./lib/gsapAnimation";
+
 export const playSong = async (track, setCurrentTrackId, setIsPlaying, listOfSongsId, parentId, spotifyApi) => {
     // starts playing a song when its clicked on
     const data = await spotifyApi?.getMyCurrentPlaybackState().catch(err => console.log(err)); // get from spotify the current playback state
@@ -18,7 +20,7 @@ export const playSong = async (track, setCurrentTrackId, setIsPlaying, listOfSon
 export const startPlayingListOfSongs = async (listOfSongs, index, setCurrentTrackId, setIsPlaying, parentId, spotifyApi) => {
     // starts playing a listOfSongs from the first active song when the user click on PLAY or Resume if there currently playing one
     const listOfSongsSongs = listOfSongs?.tracks?.items // gets all the songs on the listOfSongs
-    const track = listOfSongs?.type === 'playlist' ? listOfSongsSongs[index]?.track : listOfSongsSongs[index]  // gets a specific song based on the index passed
+    const track = (listOfSongs?.type === 'playlist' || listOfSongs?.type === 'top-tracks') ? listOfSongsSongs[index]?.track : listOfSongsSongs[index]  // gets a specific song based on the index passed
 
     const data = await spotifyApi?.getMyCurrentPlaybackState().catch(err => console.log(err)); // get from spotify the current playback state
 
@@ -104,60 +106,49 @@ export const getCurrentPlayingTrackFromSpotify = async (spotifyApi) => {
 
 }
 
-export const toggleFollowingPlaylist = (op, playlist, setIsUserFollowingPlaylist, spotifyApi) => {
+export const toggleFollowingPlaylist = (op, playlist, setIsUserFollowingPlaylist, setPopMssgType, spotifyApi) => {
     // Toggle user playlist following state 
     if (op === "FOL") {
         // Follow a playlist
         spotifyApi.followPlaylist(playlist?.id, { 'public': false })
             .then(function (data) {
-                setIsUserFollowingPlaylist(true)
+                setPopMssgType('SAVE');
+                setIsUserFollowingPlaylist(true);
+                popUpMssgAnimation()
             }).catch(err => console.log(err))
     } else if (op === "UN-FOL") {
         // Unfollow a playlist
         spotifyApi.unfollowPlaylist(playlist?.id)
             .then(function (data) {
+                setPopMssgType('REMOVE');
                 setIsUserFollowingPlaylist(false);
+                popUpMssgAnimation();
             }).catch(err => console.log(err))
     }
 
 }
-export const toggleSavedAlbum = (op, album, setIsAlbumSaved, spotifyApi) => {
+export const toggleSavedAlbum = (op, album, setIsAlbumSaved, setPopMssgType, spotifyApi) => {
     // Toggle user saved album 
     if (op === "SAVE") {
         // Save an album to user libary
         spotifyApi.addToMySavedAlbums([album?.id])
             .then(() => {
+                setPopMssgType('SAVE');
                 setIsAlbumSaved(true);
+                popUpMssgAnimation();
             }).catch(err => console.log(err))
     } else if (op === "UN-SAVE") {
         // Unsave an album from a user libary
         spotifyApi.removeFromMySavedAlbums([album?.id])
             .then(() => {
+                setPopMssgType('REMOVE');
                 setIsAlbumSaved(false);
+                popUpMssgAnimation();
             }).catch(err => console.log(err))
     }
 
 }
 
-export const toggleSavedTrack = (op, track, setIsTrackSaved, spotifyApi) => {
-    // Toggle user saved track 
-    if (op === "SAVE") {
-        // Save an track to user libary
-        spotifyApi.containsMySavedTracks([track?.id])
-            .then(() => {
-                console.log('SAVE')
-                setIsTrackSaved(true);
-            }).catch(err => console.log(err))
-    } else if (op === "UN-SAVE") {
-        // Unsave an track from a user libary
-        spotifyApi.removeFromMySavedTracks([track?.id])
-            .then(() => {
-                console.log('UN-SAVE');
-                setIsTrackSaved(false);
-            }).catch(err => console.log(err))
-    }
-
-}
 
 export const createNewPlaylist = (selectedTracks, router, userPlaylists, spotifyApi) => {
     // Create a new Playlist for user

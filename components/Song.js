@@ -35,7 +35,6 @@ function Song({ order, track, addedAt, type, songInfo, isPlaying, parentId, ...p
     }, [props, track])
 
     const handleTrackAddToPlaylist = () => {
-        console.log('called')
         if (!props.topTrackIsCreatePlaylist) return // return if user isn't current creating a playlist
         if (isTrackSelected) props.setSelectedTracks(props.selectedTracks.filter(sTrack => sTrack?.id !== track?.id)) // remove if track has already been picked
         if (!isTrackSelected) props.setSelectedTracks([...props.selectedTracks, track]) // add if track hasnt been picked

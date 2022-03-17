@@ -13,6 +13,7 @@ import { isSidebarOpenState } from '../globalState/sidebarAtom';
 import { sidebarAnimation } from '../lib/gsapAnimation';
 import { useRouter } from 'next/router';
 import DisplayModal from './appModals/DisplayModal'
+import { popMssgTypeState } from '../globalState/popMessageAtom';
 
 function Sidebar() {
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
@@ -21,6 +22,7 @@ function Sidebar() {
     const [playlists, setPlaylists] = useRecoilState(userPlaylistsState); // keeps state for all the user playists gotten from spotify
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const { parentId } = useRecoilValue(currentTrackIdState); // Atom global state
+    const popMssgType = useRecoilValue(popMssgTypeState) // Atom global state
     const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState); // Atom global state
     const router = useRouter();
 
@@ -31,7 +33,7 @@ function Sidebar() {
     }
     useEffect(() => {
         // gets user playlist from spotify on first render
-        console.log("sidebar rerouting")
+
         const getUserPlaylists = async () => {
 
             if (spotifyApi.getAccessToken()) {
@@ -42,7 +44,7 @@ function Sidebar() {
         }
         getUserPlaylists();
 
-    }, [session, isNewPlaylistCreated, spotifyApi, setPlaylists])
+    }, [session, isNewPlaylistCreated, spotifyApi, popMssgType, setPlaylists])
 
     return (
         <div className='SIDEBAR text-gray-500 text-xs border-r z-10 border-gray-900 h-[90vh] absolute left-[-745px] md:max-w-[13rem] lg:max-w-[15rem] lg:text-sm flex-col md:flex md:static md:!pt-0 '>

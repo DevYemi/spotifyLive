@@ -8,11 +8,13 @@ import useSpotify from '../customHooks/useSpotify';
 import { ClockIcon, DotsHorizontalIcon, HeartIcon, PauseIcon, PlayIcon } from '@heroicons/react/solid';
 import { HeartIcon as HeartIconOutline } from '@heroicons/react/outline'
 import { handlePlayAndPauseOfPlayer, startPlayingListOfSongs, toggleSavedAlbum } from '../utils';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
 import useSongInfo from '../customHooks/useSongInfo';
 import AlbumSong from './AlbumSong';
 import MusicCard from './MusicCard';
+import { albumDetailsState } from '../globalState/albumAtom';
+import { popMssgTypeState } from '../globalState/popMessageAtom';
 
 const colors = [
     // random colors created to be shuffled
@@ -30,6 +32,8 @@ function Album({ albumDetails }) {
     // console.log('album');
     const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
+    const setAlbumDetails = useSetRecoilState(albumDetailsState) // Atom global state
+    const setPopMssgType = useSetRecoilState(popMssgTypeState) // Atom global state
     const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     const [color, setColor] = useState(null); // keeps state of the current color that was selected after shuffle
     const [albumOwnerDetails, setAlbumOwnerDetails] = useState(null); // keeps state of the details of the owner album
@@ -38,6 +42,11 @@ function Album({ albumDetails }) {
     const [moreFromArtist, setMoreFromArtist] = useState([]) // keeps state of more music from displayed artist
     const spotifyApi = useSpotify();
 
+
+    useEffect(() => {
+        // on first render map albumDetails to global state
+        setAlbumDetails(albumDetails);
+    }, [albumDetails, setAlbumDetails])
     useEffect(() => {
 
         // Check if albums are in the signed in user's Your Music library
@@ -57,7 +66,6 @@ function Album({ albumDetails }) {
         // get the album owner details on first render 
         spotifyApi.getArtist(albumDetails?.artists[0]?.id)
             .then(data => {
-                console.log(data.body)
                 setAlbumOwnerDetails(data.body)
             }).catch(err => console.log(err))
         setColor(shuffle(colors).pop())
@@ -126,9 +134,9 @@ function Album({ albumDetails }) {
                     <>
                         {
                             isAlbumSaved ?
-                                <HeartIcon onClick={() => toggleSavedAlbum("UN-SAVE", albumDetails, setIsAlbumSaved, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                <HeartIcon onClick={() => toggleSavedAlbum("UN-SAVE", albumDetails, setIsAlbumSaved, setPopMssgType, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
                                 :
-                                <HeartIconOutline onClick={() => toggleSavedAlbum("SAVE", albumDetails, setIsAlbumSaved, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                <HeartIconOutline onClick={() => toggleSavedAlbum("SAVE", albumDetails, setIsAlbumSaved, setPopMssgType, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
                         }
 
 

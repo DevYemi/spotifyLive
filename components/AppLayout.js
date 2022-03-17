@@ -6,6 +6,7 @@ import { useRecoilState } from 'recoil';
 import { preventRoutingPageLoadingState, routingPageLoadingState } from '../globalState/loadingAtom';
 import { useRouter } from 'next/router';
 import PageLoading from './PageLoading'
+import PopUpMessage from './PopUpMessage'
 
 function AppLayout({ children }) {
     const { data: session } = useSession();  // get the current logged in user session
@@ -41,9 +42,13 @@ function AppLayout({ children }) {
             <div className="bg-black h-screen overflow-hidden">
                 <main className='flex h-[88vh] relative'>
                     <Sidebar />
-                    {
-                        routingPageLoading ? <PageLoading /> : children
-                    }
+                    <div className=' relative flex flex-1'>
+                        {
+                            routingPageLoading ? <PageLoading /> : children
+                        }
+                        <PopUpMessage />
+                    </div>
+
 
                 </main>
                 <div className='sticky bottom-0'>

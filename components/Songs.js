@@ -1,7 +1,7 @@
 import { ClockIcon, DotsHorizontalIcon, HeartIcon, PlayIcon, PauseIcon } from '@heroicons/react/solid'
 import { HeartIcon as HeartIconOutline } from '@heroicons/react/outline'
 import React, { useEffect, useState } from 'react'
-import { useRecoilValue, useRecoilState } from 'recoil'
+import { useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil'
 import { playlistState } from '../globalState/playlistsAtom'
 import { handlePlayAndPauseOfPlayer, startPlayingListOfSongs, toggleFollowingPlaylist } from '../utils'
 import Song from './Song'
@@ -9,6 +9,7 @@ import useSpotify from '../customHooks/useSpotify'
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom'
 import { useSession } from 'next-auth/react'
 import useSongInfo from '../customHooks/useSongInfo'
+import { popMssgTypeState } from '../globalState/popMessageAtom'
 
 function Songs() {
     // console.log('SONGS');
@@ -16,6 +17,7 @@ function Songs() {
     const spotifyApi = useSpotify();
     const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
     const playlist = useRecoilValue(playlistState);  // Atom global state
+    const setPopMssgType = useSetRecoilState(popMssgTypeState) // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     const [isUserFollowingPlaylist, setIsUserFollowingPlaylist] = useState(false); // keeps state if a user is following a playlist
@@ -48,9 +50,9 @@ function Songs() {
                     <>
                         {
                             isUserFollowingPlaylist ?
-                                <HeartIcon onClick={() => toggleFollowingPlaylist("UN-FOL", playlist, setIsUserFollowingPlaylist, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                <HeartIcon onClick={() => toggleFollowingPlaylist("UN-FOL", playlist, setIsUserFollowingPlaylist, setPopMssgType, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
                                 :
-                                <HeartIconOutline onClick={() => toggleFollowingPlaylist("FOL", playlist, setIsUserFollowingPlaylist, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                <HeartIconOutline onClick={() => toggleFollowingPlaylist("FOL", playlist, setIsUserFollowingPlaylist, setPopMssgType, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
                         }
 
 

@@ -42,7 +42,6 @@ function SearchBox({ parentClass, foundTracks, searchInput, setSearchLoading, se
                         href: nextSearch?.tracks?.href
                     });
                     setSearchLoading(false)
-                    console.log(nextSearch)
                 } catch (err) {
                     setSearchLoading(false)
                     console.log(err)
