@@ -107,11 +107,11 @@ function EditPlaylistModal({ handleModalClose }) {
         }
     }
     useEffect(() => {
-        // closing
+        // add eventlistener for toggling DotsHorizonIcon
         const closeDotsHorizontalClick = (e) => {
             const dotsHorizonIcon = document.querySelector('.EPM-DHICON');
-            if (dotsHorizonIcon === e.target.parentNode || dotsHorizonIcon === e.target) return
-            if (ulElement.current) ulElement.current.style.display = 'none'
+            if (dotsHorizonIcon === e.target.parentNode || dotsHorizonIcon === e.target) return // return if the icon was clicked ans let the openDotsHorizontalClick Func hnadle it
+            if (ulElement.current) ulElement.current.style.display = 'none' // else if you clicked somewhere else on the screen close it
         }
         window.addEventListener('click', closeDotsHorizontalClick);
         return () => window.removeEventListener('click', closeDotsHorizontalClick)

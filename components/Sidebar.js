@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'
-import { HomeIcon, SearchIcon, RssIcon } from '@heroicons/react/outline'
-import { BellIcon, PauseIcon, PlusIcon, VolumeUpIcon } from '@heroicons/react/solid'
+import { HomeIcon, SearchIcon, RssIcon, VolumeUpIcon } from '@heroicons/react/outline'
+import { BellIcon, PauseIcon, PlusIcon } from '@heroicons/react/solid'
 import { useSession } from 'next-auth/react'
 import useSpotify from '../customHooks/useSpotify'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -19,7 +19,7 @@ function Sidebar() {
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
     const [isNewPlaylistCreated, setIsNewPlaylistCreated] = useRecoilState(isNewPlaylistCreatedState); // Atom global state
     const { data: session } = useSession(); // get the current logged in user session
-    const [playlists, setPlaylists] = useRecoilState(userPlaylistsState); // keeps state for all the user playists gotten from spotify
+    const [playlists, setPlaylists] = useRecoilState(userPlaylistsState); // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const { parentId } = useRecoilValue(currentTrackIdState); // Atom global state
     const popMssgType = useRecoilValue(popMssgTypeState) // Atom global state
@@ -123,8 +123,8 @@ function Sidebar() {
                             </Link>
                             {(isPlaying && parentId === playlist?.id) &&
                                 <div className='group'>
-                                    <VolumeUpIcon className=' h-3 w-3 group-hover:hidden ' />
-                                    <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-4 w-4 hidden group-hover:block' />
+                                    <VolumeUpIcon className=' h-4 w-4 group-hover:hidden text-[#1ED760] ' />
+                                    <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-4 w-4 hidden text-white group-hover:block' />
                                 </div>
                             }
                         </div>

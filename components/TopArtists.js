@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link'
 import { useRouter } from 'next/router';
 import React from 'react'
-import HeaderNav from './HeaderNav'
+import HeaderNav from './common/HeaderNav'
 
 function TopArtists({ topArtists }) {
     // console.log('TOP-ARTISTS');
@@ -33,7 +33,7 @@ function TopArtists({ topArtists }) {
                 </div>
                 <div className="flex flex-wrap justify-center max-w-7xl mx-auto ">
                     {
-                        topArtists.map((artist, i) => (
+                        topArtists?.map((artist, i) => (
                             <Link key={artist?.id} href={artist?.external_urls?.spotify}>
                                 <a
                                     target={'_blank'}

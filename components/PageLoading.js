@@ -1,6 +1,6 @@
 import React from 'react'
-import HeaderNav from './HeaderNav'
-import Loading from './Loading'
+import HeaderNav from './common/HeaderNav'
+import Loading from './common/Loading'
 
 function PageLoading() {
     return (

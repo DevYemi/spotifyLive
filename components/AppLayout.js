@@ -6,7 +6,7 @@ import { useRecoilState } from 'recoil';
 import { preventRoutingPageLoadingState, routingPageLoadingState } from '../globalState/loadingAtom';
 import { useRouter } from 'next/router';
 import PageLoading from './PageLoading'
-import PopUpMessage from './PopUpMessage'
+import PopUpMessage from './common/PopUpMessage'
 
 function AppLayout({ children }) {
     const { data: session } = useSession();  // get the current logged in user session

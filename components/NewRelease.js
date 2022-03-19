@@ -1,6 +1,6 @@
 import React from 'react'
-import HeaderNav from './HeaderNav'
-import MusicCard from './MusicCard'
+import HeaderNav from './common/HeaderNav'
+import MusicCard from './common/MusicCard'
 
 function NewRelease({ newRelease }) {
     // console.log('NR');

@@ -8,7 +8,7 @@ import { PlayIcon, BadgeCheckIcon, PauseIcon, XIcon } from '@heroicons/react/sol
 import Link from 'next/link';
 import { handlePlayAndPauseOfPlayer, playSong, removeTrackFromPlaylist } from "../utils"
 import { playlistState } from '../globalState/playlistsAtom';
-import Loading from './Loading';
+import Loading from './common/Loading';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import ExplicitIcon from '@mui/icons-material/Explicit';

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import HeaderNav from './HeaderNav'
+import React, { useEffect } from 'react'
+import HeaderNav from './common/HeaderNav'
 import Song from './Song';
 import Link from 'next/link';
 import { useRouter } from 'next/router';

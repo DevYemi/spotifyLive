@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from 'react'
-import HeaderNav from './HeaderNav'
+import HeaderNav from './common/HeaderNav'
 import Link from 'next/link';
 import { calBodyOfWorkDuration } from '../lib/time'
 import { shuffle } from 'lodash';
@@ -12,9 +12,11 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
 import useSongInfo from '../customHooks/useSongInfo';
 import AlbumSong from './AlbumSong';
-import MusicCard from './MusicCard';
+import MusicCard from './common/MusicCard';
 import { albumDetailsState } from '../globalState/albumAtom';
 import { popMssgTypeState } from '../globalState/popMessageAtom';
+import SelectCheckBox from './common/SelectCheckBox'
+import { popUpMssgAnimation } from '../lib/gsapAnimation';
 
 const colors = [
     // random colors created to be shuffled
@@ -39,9 +41,35 @@ function Album({ albumDetails }) {
     const [albumOwnerDetails, setAlbumOwnerDetails] = useState(null); // keeps state of the details of the owner album
     const [isAlbumSaved, setIsAlbumSaved] = useState(false); // keeps state an Album is saved in a user music libary
     const [albumIsCreatePlaylist, setAlbumIsCreatePlaylist] = useState(false); // keeps state if a user is currently trying to create a playlist from the album
+    const [selectedTracks, setSelectedTracks] = useState([]) // keeps state of the selected tracks for playlist
     const [moreFromArtist, setMoreFromArtist] = useState([]) // keeps state of more music from displayed artist
+    const [addTrackLoading, setAddTrackLoading] = useState(false); // keeps loading state if a user is currrently adding songs to a playlist
     const spotifyApi = useSpotify();
 
+    const addTracksToPlaylist = (selectedPlaylist) => {
+        if (selectedTracks.length < 1) return
+        setAddTrackLoading(true);
+        // Add tracks to a playlist
+
+        spotifyApi.addTracksToPlaylist(selectedPlaylist?.id, selectedTracks.map(s => s?.uri))
+            .then(() => {
+                console.log('ADDED SUCCESSFULLY');
+                setPopMssgType({ type: selectedPlaylist?.name, operation: 'SAVE' });
+                popUpMssgAnimation();
+                setAddTrackLoading(false);
+                setSelectedTracks([]);
+                setAlbumIsCreatePlaylist(false);
+            }).catch(err => {
+                setAddTrackLoading(false);
+                console.log(err);
+            })
+    }
+
+    const handleDotIconClick = () => {
+        setAlbumIsCreatePlaylist(!albumIsCreatePlaylist);
+        setAddTrackLoading(false);
+        setSelectedTracks([]);
+    }
 
     useEffect(() => {
         // on first render map albumDetails to global state
@@ -83,7 +111,7 @@ function Album({ albumDetails }) {
     }, [spotifyApi, albumDetails])
     return (
         <div
-            className='ALBUM flex-grow scrollbar-style pb-[1em] text-white overflow-scroll h-[90vh]'>
+            className='ALBUM relative flex-grow scrollbar-style pb-[1em] text-white overflow-scroll h-[90vh]'>
             <HeaderNav color={'red'} gsapTrigger={'.ALBUM-SECTION-1'} gsapScroller={'.ALBUM '} />
             <section className={`ALBUM-SECTION-1 flex flex-col items-center space-x-7 bg-gradient-to-b ${color} to-black  text-white p-8 md:flex-row md:items-end md:h-80`}>
                 <div
@@ -143,11 +171,23 @@ function Album({ albumDetails }) {
                     </>
 
                 }
-
-                <DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' />
+                <div className='group relative'>
+                    <DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' />
+                    <p onClick={handleDotIconClick} className='absolute group-hover:block hidden bg-[#292828] rounded-sm py-1 px-4 text-[10px] w-max'>
+                        {albumIsCreatePlaylist ? 'Cancel playlist' : 'Create a Playlist from album'}
+                    </p>
+                </div>
 
             </section>
-            <section className="ALBUM-SECTION-3 px-5 flex flex-col space-y-1 md:px-8">
+            <section className='ALBUM-SECTION-3'>
+                <div className='max-w-[700px] mx-auto px-[1em]'>
+                    {albumIsCreatePlaylist && <SelectCheckBox
+                        addTrackLoading={addTrackLoading}
+                        addTracksToPlaylist={addTracksToPlaylist} />
+                    }
+                </div>
+            </section>
+            <section className="ALBUM-SECTION-4 px-5 flex flex-col space-y-1 md:px-8">
                 <div className='flex px-5 uppercase text-sm font-bold justify-between text-gray-500 pt-4 pb-1 border-b border-gray-600'>
                     <p className=''># Title</p>
                     <p className=''><ClockIcon className='h-5 w-5' /></p>
@@ -161,6 +201,8 @@ function Album({ albumDetails }) {
                             parentId={parentId}
                             albumIsCreatePlaylist={albumIsCreatePlaylist}
                             albumDetails={albumDetails}
+                            setSelectedTracks={setSelectedTracks}
+                            selectedTracks={selectedTracks}
                             songInfo={songInfo}
                             isPlaying={isPlaying}
                             order={i}
@@ -168,12 +210,12 @@ function Album({ albumDetails }) {
                     ))
                 }
             </section>
-            <section className="ALBUM-SECTION-4 pl-[36px] text-[8px] mt-5 text-[#797676] md:pl-[50px]">
+            <section className="ALBUM-SECTION-5 pl-[36px] text-[8px] mt-5 text-[#797676] md:pl-[50px]">
                 {albumDetails?.copyrights[0]?.text && <p>&copy; {albumDetails?.copyrights[0]?.text}</p>}
                 {albumDetails?.copyrights[1]?.text && <p>&#8471; {albumDetails?.copyrights[1]?.text}</p>}
             </section>
 
-            <section className="ALBUM-SECTION-5 mt-5 pl-[36px] md:pl-[50px]">
+            <section className="ALBUM-SECTION-6 mt-5 pl-[36px] md:pl-[50px]">
                 <h2 className='text-xl font-semibold'>More from {albumDetails?.artists[0]?.name}</h2>
                 <div className='flex flex-wrap justify-evenly mt-5 '>
                     {moreFromArtist.length > 0 && moreFromArtist.map((track, i) => (

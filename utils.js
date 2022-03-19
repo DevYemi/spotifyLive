@@ -112,7 +112,7 @@ export const toggleFollowingPlaylist = (op, playlist, setIsUserFollowingPlaylist
         // Follow a playlist
         spotifyApi.followPlaylist(playlist?.id, { 'public': false })
             .then(function (data) {
-                setPopMssgType('SAVE');
+                setPopMssgType({ type: 'library', operation: 'SAVE' });
                 setIsUserFollowingPlaylist(true);
                 popUpMssgAnimation()
             }).catch(err => console.log(err))
@@ -120,7 +120,7 @@ export const toggleFollowingPlaylist = (op, playlist, setIsUserFollowingPlaylist
         // Unfollow a playlist
         spotifyApi.unfollowPlaylist(playlist?.id)
             .then(function (data) {
-                setPopMssgType('REMOVE');
+                setPopMssgType({ type: 'library', operation: 'REMOVE' });
                 setIsUserFollowingPlaylist(false);
                 popUpMssgAnimation();
             }).catch(err => console.log(err))
@@ -133,7 +133,7 @@ export const toggleSavedAlbum = (op, album, setIsAlbumSaved, setPopMssgType, spo
         // Save an album to user libary
         spotifyApi.addToMySavedAlbums([album?.id])
             .then(() => {
-                setPopMssgType('SAVE');
+                setPopMssgType({ type: 'library', operation: 'SAVE' });
                 setIsAlbumSaved(true);
                 popUpMssgAnimation();
             }).catch(err => console.log(err))
@@ -141,7 +141,7 @@ export const toggleSavedAlbum = (op, album, setIsAlbumSaved, setPopMssgType, spo
         // Unsave an album from a user libary
         spotifyApi.removeFromMySavedAlbums([album?.id])
             .then(() => {
-                setPopMssgType('REMOVE');
+                setPopMssgType({ type: 'library', operation: 'REMOVE' });
                 setIsAlbumSaved(false);
                 popUpMssgAnimation();
             }).catch(err => console.log(err))
@@ -155,11 +155,11 @@ export const createNewPlaylist = (selectedTracks, router, userPlaylists, spotify
 
     const selectedTracksURIs = selectedTracks.map(track => track?.uri)
     let newCreatedPlaylistId = ''
-    spotifyApi.createPlaylist(`My playlist #${userPlaylists.length + 1}`, { 'description': 'My description', 'public': true })
+    spotifyApi.createPlaylist(`My playlist #${userPlaylists?.length + 1}`, { 'description': 'My description', 'public': true })
         .then((data) => {
             // first create playlist
             newCreatedPlaylistId = data?.body?.id
-            if (selectedTracks.length < 1) return router.push(`/playlist/${newCreatedPlaylistId}`)
+            if (selectedTracks?.length < 1) return router.push(`/playlist/${newCreatedPlaylistId}`)
 
             spotifyApi.addTracksToPlaylist(newCreatedPlaylistId, selectedTracksURIs)
                 .then(function (data) {

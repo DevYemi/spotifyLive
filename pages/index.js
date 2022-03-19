@@ -1,5 +1,5 @@
 import { EyeIcon, PlayIcon } from "@heroicons/react/solid";
-import HeaderNav from '../components/HeaderNav'
+import HeaderNav from '../components/common/HeaderNav'
 import Link from "next/link";
 
 

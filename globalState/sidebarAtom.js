@@ -6,3 +6,5 @@ export const isSidebarOpenState = atom({
     key: "isSidebarOpenState",
     default: false
 })
+
+

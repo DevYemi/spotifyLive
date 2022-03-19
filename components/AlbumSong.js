@@ -1,23 +1,35 @@
 /* eslint-disable @next/next/no-img-element */
 import { BadgeCheckIcon, PauseIcon, PlayIcon } from '@heroicons/react/solid'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSetRecoilState } from 'recoil';
 import useSpotify from '../customHooks/useSpotify';
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
 import { convertMsToTime } from '../lib/time';
 import { handlePlayAndPauseOfPlayer, playSong } from '../utils';
 import ExplicitIcon from '@mui/icons-material/Explicit';
-import Loading from './Loading'
+import Loading from './common/Loading'
 
-function AlbumSong({ order, track, songInfo, isPlaying, albumIsCreatePlaylist, parentId, albumDetails }) {
+function AlbumSong({ order, track, songInfo, isPlaying, albumIsCreatePlaylist, parentId, setSelectedTracks, selectedTracks, albumDetails }) {
     const spotifyApi = useSpotify();
     const setIsPlaying = useSetRecoilState(isPlayingState); // Atom global state
     const setCurrentTrackId = useSetRecoilState(currentTrackIdState); // Atom global state
     const [isTrackSelected, setIsTrackSelected] = useState(false); // keeps state if a track has been seleceted for a playlist
 
+    const handleTrackAddToPlaylist = () => {
+        if (!albumIsCreatePlaylist) return // return if user isn't current creating a playlist
+        if (isTrackSelected) setSelectedTracks(selectedTracks.filter(sTrack => sTrack?.id !== track?.id)) // remove if track has already been picked
+        if (!isTrackSelected) setSelectedTracks([...selectedTracks, track]) // add if track hasnt been picked
+        setIsTrackSelected(!isTrackSelected)
+    }
+
+    useEffect(() => {
+        if (selectedTracks.length < 1) setIsTrackSelected(false) // reset is selected if there is no track in selected tracks
+    }, [selectedTracks])
+
     return (
         < div
+            onClick={handleTrackAddToPlaylist}
             className={`group flex justify-between text-gray-500 py-4  hover:bg-gray-900 rounded-lg px-3 md:px-5`}>
             < div className='flex items-center space-x-4'>
                 {   // if user is currently picking a playlist open picker icon

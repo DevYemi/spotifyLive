@@ -5,7 +5,7 @@ import { shuffle } from 'lodash'
 import { useSetRecoilState } from 'recoil';
 import { isNewPlaylistCreatedState, playlistState } from '../globalState/playlistsAtom';
 import Songs from './Songs'
-import HeaderNav from './HeaderNav'
+import HeaderNav from './common/HeaderNav'
 import Link from 'next/link';
 import { calBodyOfWorkDuration } from '../lib/time';
 import { MusicNoteIcon } from '@heroicons/react/solid';
@@ -13,8 +13,8 @@ import { PencilIcon } from '@heroicons/react/outline';
 import { isModalOpenState } from '../globalState/displayModalAtom';
 import useSpotify from '../customHooks/useSpotify';
 import { useRouter } from 'next/router';
-import Loading from './Loading';
-import SearchBox from './SearchBox';
+import Loading from './common/Loading';
+import SearchBox from './common/SearchBox';
 import { hasScrollReachedBottom } from '../utils';
 
 

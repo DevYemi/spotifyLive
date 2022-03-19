@@ -2,14 +2,18 @@ import { SearchIcon, XIcon } from '@heroicons/react/solid'
 import { debounce } from 'lodash';
 import { useSession } from 'next-auth/react';
 import React, { useEffect } from 'react'
-import useSpotify from '../customHooks/useSpotify';
+import useSpotify from '../../customHooks/useSpotify';
 
 function SearchBox({ parentClass, foundTracks, searchInput, setSearchLoading, setFoundTracks, debounceduserSearchInput }) {
     const { data: session } = useSession();  // get the current logged in user session
     const spotifyApi = useSpotify();
     const handleXIconClick = () => {
         if (parentClass === '.PLAYLIST-SECTION-3') document.querySelector(parentClass).style.display = 'none'
-        if (parentClass === '.SEARCH') setFoundTracks({}); searchInput.current.value = '';
+        if (parentClass === '.SEARCH') {
+            setFoundTracks({});
+            setSearchLoading(false);
+            searchInput.current.value = '';
+        }
     }
     useEffect(() => {
         // On First Render get a debounce function and set it

@@ -2,17 +2,17 @@
 import React, { useEffect, useState } from 'react'
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/outline';
 import { useSession, signOut } from 'next-auth/react'
-import { headerNavAnimations, sidebarAnimation } from '../lib/gsapAnimation'
+import { headerNavAnimations, sidebarAnimation } from '../../lib/gsapAnimation'
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { playlistState } from '../globalState/playlistsAtom';
+import { playlistState } from '../../globalState/playlistsAtom';
 import { MenuIcon, PauseIcon, PlayIcon, XCircleIcon } from '@heroicons/react/solid';
-import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
-import { handlePlayAndPauseOfPlayer, startPlayingListOfSongs } from '../utils';
-import useSpotify from '../customHooks/useSpotify';
-import { isSidebarOpenState } from '../globalState/sidebarAtom'
+import { currentTrackIdState, isPlayingState } from '../../globalState/songAtom';
+import { handlePlayAndPauseOfPlayer, startPlayingListOfSongs } from '../../utils';
+import useSpotify from '../../customHooks/useSpotify';
+import { isSidebarOpenState } from '../../globalState/sidebarAtom'
 import { useRouter } from 'next/router';
-import { topTracksState } from '../globalState/topTracksAtom'
-import { albumDetailsState } from '../globalState/albumAtom'
+import { topTracksState } from '../../globalState/topTracksAtom'
+import { albumDetailsState } from '../../globalState/albumAtom'
 
 function HeaderNav({ color, gsapTrigger, gsapScroller }) {
     // console.log('haeder nav');

@@ -39,3 +39,8 @@ body {
 .scrollbar-style::-webkit-scrollbar-thumb {
     background: #4D4D4D;
 }
+
+/* OVERRIDE MATERIAL UI SELECT LIST STYLES */
+.MuiList-root {
+    max-height: 300px !important;
+}

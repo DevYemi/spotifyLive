@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
-import HeaderNav from '../components/HeaderNav'
-import Loading from '../components/Loading'
-import SearchBox from '../components/SearchBox'
+import HeaderNav from '../components/common/HeaderNav'
+import Loading from '../components/common/Loading'
+import SearchBox from '../components/common/SearchBox'
 import { hasScrollReachedBottom } from '../utils'
 
 
@@ -19,6 +19,9 @@ function SearchScreen() {
         setFoundTracks({})
         if (searchInput.current) searchInput.current.value = ''
     }, []);
+    useEffect(() => {
+        if (searchInput?.current?.value === '') setSearchLoading(false)
+    }, [searchInput?.current?.value])
     return (
         <div
             onScroll={(e) => hasScrollReachedBottom(e, searchInput, foundTracks, '.SEARCH-WR', debounceduserSearchInput)}
@@ -58,7 +61,7 @@ function SearchScreen() {
 
                 }
                 {
-                    searchLoading &&
+                    (searchLoading && searchInput.current.value !== '') &&
                     <Loading
                         size={90}
                         type={'Rings'}
