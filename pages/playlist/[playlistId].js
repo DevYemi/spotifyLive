@@ -3,13 +3,15 @@ import React from 'react'
 import { getSession } from 'next-auth/react'
 import spotifyApi from '../../lib/spotify';
 import PlaylistInfo from '../../components/Playlist';
+import NotFound from '../404'
 
 
 
 
 function PlaylistInfoScreen({ playlist }) {
 
-    return <PlaylistInfo playlist={playlist} />
+    if (playlist) return <PlaylistInfo playlist={playlist} />
+    return <NotFound />
 
 }
 
