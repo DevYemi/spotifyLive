@@ -12,8 +12,9 @@ import { createNewPlaylist, handlePlayAndPauseOfPlayer } from '../utils';
 import { isSidebarOpenState } from '../globalState/sidebarAtom';
 import { sidebarAnimation } from '../lib/gsapAnimation';
 import { useRouter } from 'next/router';
-import DisplayModal from './appModals/DisplayModal'
 import { popMssgTypeState } from '../globalState/popMessageAtom';
+import Button from '@mui/material/Button';
+import { isModalOpenState } from '../globalState/displayModalAtom';
 
 function Sidebar() {
     const spotifyApi = useSpotify(); // custom hooks that gets the spotify web api
@@ -24,31 +25,34 @@ function Sidebar() {
     const { parentId } = useRecoilValue(currentTrackIdState); // Atom global state
     const popMssgType = useRecoilValue(popMssgTypeState) // Atom global state
     const setIsSidebarOpen = useSetRecoilState(isSidebarOpenState); // Atom global state
+    const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
     const router = useRouter();
 
     const handleCreatePlaylistClick = () => {
         setIsNewPlaylistCreated(true);
         sidebarAnimation('CLOSE', setIsSidebarOpen);
-        createNewPlaylist([], router, playlists, spotifyApi);
+        createNewPlaylist([], router, playlists, setIsModalOpen, spotifyApi);
     }
     useEffect(() => {
         // gets user playlist from spotify on first render
 
-        const getUserPlaylists = async () => {
-
-            if (spotifyApi.getAccessToken()) {
-                const data = await spotifyApi.getUserPlaylists().catch(err => console.log(err))
-                setPlaylists(data?.body?.items);
-            }
+        if (spotifyApi.getAccessToken()) {
+            spotifyApi.getUserPlaylists()
+                .then(data => {
+                    setPlaylists(data?.body?.items);
+                })
+                .catch(err => {
+                    console.log(err)
+                    setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message })
+                })
 
         }
-        getUserPlaylists();
 
-    }, [session, isNewPlaylistCreated, spotifyApi, popMssgType, setPlaylists])
+    }, [session, isNewPlaylistCreated, spotifyApi, popMssgType, setPlaylists, setIsModalOpen])
 
     return (
         <div className='SIDEBAR text-gray-500 text-xs border-r z-10 border-gray-900 h-[90vh] absolute left-[-745px] md:max-w-[13rem] lg:max-w-[15rem] lg:text-sm flex-col md:flex md:static md:!pt-0 '>
-            <section className='NAV-SECTION space-y-4 p-5 '>
+            <section className='NAV-SECTION space-y-2 p-5 '>
                 <Link href='/'>
                     <a
                         onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }}
@@ -64,70 +68,81 @@ function Sidebar() {
                         />
                     </a>
                 </Link>
-                <Link href={'/'}>
-                    <a onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }} className='flex items-center space-x-2 hover:text-white text-[14px]'>
-                        <HomeIcon className='h-7 w-7' />
-                        <p>Home</p>
-                    </a>
-                </Link>
+                <Button>
+                    <Link href={'/'}>
+                        <a onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }} className='flex text-gray-500 items-center space-x-2 hover:text-white text-[13px]'>
+                            <HomeIcon className='h-7 w-7' />
+                            <p>Home</p>
+                        </a>
+                    </Link>
+                </Button>
 
-                <Link href='/search'>
-                    <a
-                        onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }}
-                        className='flex items-center space-x-2 hover:text-white text-[14px]'>
-                        <SearchIcon className='h-7 w-7' />
-                        <p>Search</p>
-                    </a>
-                </Link>
+                <Button className='block'>
+                    <Link href='/search'>
+                        <a
+                            onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }}
+                            className='flex text-gray-500 items-center space-x-2 hover:text-white text-[13px]'>
+                            <SearchIcon className='h-7 w-7' />
+                            <p>Search</p>
+                        </a>
+                    </Link>
+                </Button>
+
 
                 <hr className='border-t-[0.1px] border-gray-900 ' />
-                <button
+                <Button
                     onClick={handleCreatePlaylistClick}
-                    className='flex items-center space-x-2 hover:text-white text-[14px]'>
+                    className='flex text-gray-500 items-center space-x-2 hover:text-white text-[13px]'>
                     <span className='p-1 rounded-sm bg-gray-300'>
                         <PlusIcon className='h-4 w-4 text-gray-900 ' />
                     </span>
                     <p>Create PLaylist</p>
-                </button>
-                <Link href='/new-release'>
-                    <a
-                        onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }}
-                        className='flex items-center space-x-2 hover:text-white text-[14px]'>
-                        <span className='p-1 rounded-sm bg-gradient-to-br from-[#280887] to-[#6B8278] '>
-                            <BellIcon className='h-4 w-4 text-white' />
-                        </span>
-                        <p>New Release</p>
-                    </a>
-                </Link>
+                </Button>
+                <Button>
+                    <Link href='/new-release'>
+                        <a
+                            onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }}
+                            className='flex text-gray-500 items-center space-x-2 hover:text-white text-[13px]'>
+                            <span className='p-1 rounded-sm bg-gradient-to-br from-[#280887] to-[#6B8278] '>
+                                <BellIcon className='h-4 w-4 text-white' />
+                            </span>
+                            <p>New Release</p>
+                        </a>
+                    </Link>
+                </Button>
 
-                <button className='flex items-center space-x-2 hover:text-white text-[14px]'>
+
+                <Button className='flex items-center text-gray-500 space-x-2 hover:text-white text-[13px]'>
                     <span className='p-1 rounded-sm bg-[#004638] '>
                         <RssIcon className='h-4 w-4 text-[#159643]' />
                     </span>
                     <p>Your episodes</p>
-                </button>
+                </Button>
                 <hr className='border-t-[0.1px] border-gray-900 ' />
             </section>
             {/* PLAYLIST */}
-            <section className="PLAYLIST-SECTION pl-5 pr-2 pb-5 space-y-4 scrollbar-style h-[191px] overflow-y-scroll flex-1">
+            <section className="PLAYLIST-SECTION pl-5 pb-5 space-y-1 scrollbar-style h-[191px] overflow-y-scroll flex-1">
                 {
                     playlists?.map((playlist, i) => (
-                        <div
+
+                        <Button
                             key={`${playlist?.id} ${i}`}
-                            className="flex justify-between items-center">
+                            className="flex justify-between w-full items-center text-[12px] text-gray-500 ">
                             <Link href={`/playlist/${playlist?.id}`}>
                                 <a onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen); }}
-                                    className="cursor-pointer hover:text-white flex-[0.9] ">
+                                    className="cursor-pointer text-left truncate hover:text-white flex-[1] ">
                                     {playlist?.name}
                                 </a>
                             </Link>
                             {(isPlaying && parentId === playlist?.id) &&
                                 <div className='group'>
                                     <VolumeUpIcon className=' h-4 w-4 group-hover:hidden text-[#1ED760] ' />
-                                    <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-4 w-4 hidden text-white group-hover:block' />
+                                    <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying, setIsModalOpen)} className='h-4 w-4 hidden text-white group-hover:block' />
                                 </div>
                             }
-                        </div>
+                        </Button>
+
+
 
 
 
@@ -135,7 +150,7 @@ function Sidebar() {
                 }
             </section>
 
-            <DisplayModal />
+
 
         </div>
     )

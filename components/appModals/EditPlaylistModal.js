@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import { styled } from '@mui/material/styles';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { isModalOpenState } from '../../globalState/displayModalAtom';
 import { PencilIcon, XCircleIcon } from '@heroicons/react/outline';
 import { DotsHorizontalIcon, MusicNoteIcon } from '@heroicons/react/solid';
@@ -53,7 +53,7 @@ const EditPlaylistTextField = styled(TextField)({
 
 
 function EditPlaylistModal({ handleModalClose }) {
-    const isModalOpen = useRecoilValue(isModalOpenState); // Atom global state
+    const [isModalOpen, setIsModalOpen] = useRecoilState(isModalOpenState); // Atom global state
     const spotifyApi = useSpotify();
     const playlist = useRecoilValue(playlistState) // Atom global state
     const [nameInput, setNameInput] = useState(playlist ? playlist?.name : '') // keeps state of the typed name by the user
@@ -77,7 +77,8 @@ function EditPlaylistModal({ handleModalClose }) {
                 handleModalClose()
                 router.push(router.asPath)
             }).catch(err => {
-                console.log(err)
+                console.log(err);
+                setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message });
             })
     }
     const uploadCoverIMageToSpotify = async (e) => {
@@ -86,11 +87,10 @@ function EditPlaylistModal({ handleModalClose }) {
             if (!longbase64uri || !playlist?.id) return
             spotifyApi.uploadCustomPlaylistCoverImage(playlist?.id, longbase64uri)
                 .then(function (data) {
-                    console.log(data)
                     console.log('Playlsit cover image uploaded!');
                 }).catch(err => {
-                    console.log(err)
-                    console.log(err?.body)
+                    console.log(err?.body);
+                    setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message });
                 })
         } catch (err) {
             console.log(err)

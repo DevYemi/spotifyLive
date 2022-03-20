@@ -17,6 +17,8 @@ import { albumDetailsState } from '../globalState/albumAtom';
 import { popMssgTypeState } from '../globalState/popMessageAtom';
 import SelectCheckBox from './common/SelectCheckBox'
 import { popUpMssgAnimation } from '../lib/gsapAnimation';
+import Button from '@mui/material/Button';
+import { isModalOpenState } from '../globalState/displayModalAtom';
 
 const colors = [
     // random colors created to be shuffled
@@ -35,6 +37,7 @@ function Album({ albumDetails }) {
     const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const setAlbumDetails = useSetRecoilState(albumDetailsState) // Atom global state
+    const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
     const setPopMssgType = useSetRecoilState(popMssgTypeState) // Atom global state
     const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     const [color, setColor] = useState(null); // keeps state of the current color that was selected after shuffle
@@ -53,15 +56,15 @@ function Album({ albumDetails }) {
 
         spotifyApi.addTracksToPlaylist(selectedPlaylist?.id, selectedTracks.map(s => s?.uri))
             .then(() => {
-                console.log('ADDED SUCCESSFULLY');
                 setPopMssgType({ type: selectedPlaylist?.name, operation: 'SAVE' });
-                popUpMssgAnimation();
+                popUpMssgAnimation(setPopMssgType);
                 setAddTrackLoading(false);
                 setSelectedTracks([]);
                 setAlbumIsCreatePlaylist(false);
             }).catch(err => {
                 setAddTrackLoading(false);
                 console.log(err);
+                setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message })
             })
     }
 
@@ -88,16 +91,22 @@ function Album({ albumDetails }) {
                 if (albumIsInYourMusic) return setIsAlbumSaved(true)
                 setIsAlbumSaved(false);
 
-            }).catch(err => console.log(err))
-    }, [albumDetails, spotifyApi])
+            }).catch(err => {
+                console.log(err);
+                setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message })
+            })
+    }, [albumDetails, spotifyApi, setIsModalOpen])
     useEffect(() => {
         // get the album owner details on first render 
         spotifyApi.getArtist(albumDetails?.artists[0]?.id)
             .then(data => {
                 setAlbumOwnerDetails(data.body)
-            }).catch(err => console.log(err))
+            }).catch(err => {
+                console.log(err);
+                setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message })
+            })
         setColor(shuffle(colors).pop())
-    }, [spotifyApi, albumDetails]);
+    }, [spotifyApi, albumDetails, setIsModalOpen]);
 
     useEffect(() => {
         // Get more Music on Artist
@@ -107,15 +116,18 @@ function Album({ albumDetails }) {
             .then(data => {
                 let artistAlbums = data?.body?.items
                 setMoreFromArtist(shuffle([...artistAlbums]).slice(0, 8))
-            }).catch(err => console.log(err))
-    }, [spotifyApi, albumDetails])
+            }).catch(err => {
+                console.log(err);
+                setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message })
+            })
+    }, [spotifyApi, albumDetails, setIsModalOpen])
     return (
         <div
             className='ALBUM relative flex-grow scrollbar-style pb-[1em] text-white overflow-scroll h-[90vh]'>
             <HeaderNav color={'red'} gsapTrigger={'.ALBUM-SECTION-1'} gsapScroller={'.ALBUM '} />
             <section className={`ALBUM-SECTION-1 flex flex-col items-center space-x-7 bg-gradient-to-b ${color} to-black  text-white p-8 md:flex-row md:items-end md:h-80`}>
                 <div
-                    className=' group relative shadow-2xl flex justify-center items-center h-[179px] w-[179px] bg-[#282828]'>
+                    className=' group relative shadow-2xl flex justify-center items-center h-[200px] min-w-[200px] max-w-[200px] bg-[#282828]'>
                     <img
                         className='h-full object-cover'
                         src={albumDetails?.images[0]?.url}
@@ -151,20 +163,20 @@ function Album({ albumDetails }) {
                 </div>
             </section>
 
-            <section className='ALBUM-SECTION-2 flex px-6 items-center space-x-5 mb-5'>
+            <section className='ALBUM-SECTION-2 flex px-6 items-center mb-5'>
                 {
                     (isPlaying && albumDetails?.id === parentId) ?
-                        <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' />
+                        <Button><PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying, setIsModalOpen)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' /></Button>
                         :
-                        <PlayIcon onClick={() => startPlayingListOfSongs(albumDetails, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' />
+                        <Button><PlayIcon onClick={() => startPlayingListOfSongs(albumDetails, 0, setCurrentTrackId, setIsPlaying, parentId, setIsModalOpen, spotifyApi)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' /></Button>
                 }
                 {
                     <>
                         {
                             isAlbumSaved ?
-                                <HeartIcon onClick={() => toggleSavedAlbum("UN-SAVE", albumDetails, setIsAlbumSaved, setPopMssgType, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                <Button><HeartIcon onClick={() => toggleSavedAlbum("UN-SAVE", albumDetails, setIsAlbumSaved, setPopMssgType, setIsModalOpen, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' /></Button>
                                 :
-                                <HeartIconOutline onClick={() => toggleSavedAlbum("SAVE", albumDetails, setIsAlbumSaved, setPopMssgType, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                <Button><HeartIconOutline onClick={() => toggleSavedAlbum("SAVE", albumDetails, setIsAlbumSaved, setPopMssgType, setIsModalOpen, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' /></Button>
                         }
 
 
@@ -172,7 +184,7 @@ function Album({ albumDetails }) {
 
                 }
                 <div className='group relative'>
-                    <DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' />
+                    <Button><DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' /></Button>
                     <p onClick={handleDotIconClick} className='absolute group-hover:block hidden bg-[#292828] rounded-sm py-1 px-4 text-[10px] w-max'>
                         {albumIsCreatePlaylist ? 'Cancel playlist' : 'Create a Playlist from album'}
                     </p>

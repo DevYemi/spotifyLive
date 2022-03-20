@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/outline';
 import { useSession, signOut } from 'next-auth/react'
 import { headerNavAnimations, sidebarAnimation } from '../../lib/gsapAnimation'
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { playlistState } from '../../globalState/playlistsAtom';
 import { MenuIcon, PauseIcon, PlayIcon, XCircleIcon } from '@heroicons/react/solid';
 import { currentTrackIdState, isPlayingState } from '../../globalState/songAtom';
@@ -13,6 +13,8 @@ import { isSidebarOpenState } from '../../globalState/sidebarAtom'
 import { useRouter } from 'next/router';
 import { topTracksState } from '../../globalState/topTracksAtom'
 import { albumDetailsState } from '../../globalState/albumAtom'
+import Button from '@mui/material/Button';
+import { isModalOpenState } from '../../globalState/displayModalAtom';
 
 function HeaderNav({ color, gsapTrigger, gsapScroller }) {
     // console.log('haeder nav');
@@ -24,11 +26,12 @@ function HeaderNav({ color, gsapTrigger, gsapScroller }) {
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
     const [isSidebarOpen, setIsSidebarOpen] = useRecoilState(isSidebarOpenState); // Atom global state
+    const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
     const [headerListOfSongsDetails, setHeaderListOfSongsDetails] = useState({}); // keeps state of the details of the body of work thats currently playing
     const { pathname, query: { time_range } } = useRouter()
     const handlePlay = () => {
-        if (pathname.includes('playlist')) return startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
-        if (pathname.includes('album')) return startPlayingListOfSongs(albumDetails, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
+        if (pathname.includes('playlist')) return startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, setIsModalOpen, spotifyApi);
+        if (pathname.includes('album')) return startPlayingListOfSongs(albumDetails, 0, setCurrentTrackId, setIsPlaying, parentId, setIsModalOpen, spotifyApi);
         if (pathname.includes('top-tracks')) {
             const idType = time_range === 'short_term' ? 'short_term' : time_range === 'medium_term' ? 'medium_term' : 'long_term';
             const modifyTopTracks = {
@@ -37,8 +40,7 @@ function HeaderNav({ color, gsapTrigger, gsapScroller }) {
                 type: 'top-tracks',
                 tracks: { items: topTracks.map(track => ({ track })) }
             }
-            // console.log(modifyTopTracks)
-            startPlayingListOfSongs(modifyTopTracks, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi);
+            startPlayingListOfSongs(modifyTopTracks, 0, setCurrentTrackId, setIsPlaying, parentId, setIsModalOpen, spotifyApi);
         }
 
 
@@ -66,18 +68,19 @@ function HeaderNav({ color, gsapTrigger, gsapScroller }) {
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black'>
                         <ChevronLeftIcon onClick={() => history.back()} className='h-6 w-6' />
                     </span>
+
                     <span className=' p-1 h-fit rounded-full cursor-pointer bg-black ml-4'>
                         <ChevronRightIcon onClick={() => history.forward()} className='h-6 w-6' />
                     </span>
                     <div className={`HEADER-NAV-ICON opacity-0 ${gsapTrigger === '.TOP-ARTISTS' && 'hidden'}`}>
                         {
                             (isPlaying && headerListOfSongsDetails?.id === parentId) ?
-                                <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className={` h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden md:block`} />
+                                <Button><PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying, setIsModalOpen)} className={` h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden md:block`} /></Button>
                                 :
-                                <PlayIcon
+                                <Button><PlayIcon
                                     onClick={handlePlay}
                                     className=' h-[4rem] w-[4rem] ml-4 mr-4 text-[#1ED760] cursor-pointer  hidden  md:block'
-                                />
+                                /></Button>
                         }
                     </div>
 

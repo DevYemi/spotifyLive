@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { shuffle } from 'lodash'
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { isNewPlaylistCreatedState, playlistState } from '../globalState/playlistsAtom';
 import Songs from './Songs'
 import HeaderNav from './common/HeaderNav'
@@ -16,6 +16,8 @@ import { useRouter } from 'next/router';
 import Loading from './common/Loading';
 import SearchBox from './common/SearchBox';
 import { hasScrollReachedBottom } from '../utils';
+import { popMssgTypeState } from '../globalState/popMessageAtom';
+import { popUpMssgAnimation } from '../lib/gsapAnimation';
 
 
 const colors = [
@@ -35,6 +37,7 @@ function PlaylistInfo({ playlist }) {
     const { data: session } = useSession();  // get the current logged in user session
     const spotifyApi = useSpotify();
     const [color, setColor] = useState(null); // keeps state of the current color that was selected after shuffle
+    const [popMssgType, setPopMssgType] = useRecoilState(popMssgTypeState) // Atom global state
     const setIsNewPlaylistCreated = useSetRecoilState(isNewPlaylistCreatedState); // Atom global state
     const setPlaylist = useSetRecoilState(playlistState); // Atom global state
     const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
@@ -49,10 +52,13 @@ function PlaylistInfo({ playlist }) {
         const isTrackAlreadyAdded = playlist?.tracks?.items.filter(item => item?.track?.id === track?.id)
         if (isTrackAlreadyAdded.length > 0) return
         spotifyApi.addTracksToPlaylist(playlist?.id, [track?.uri])
-            .then(function (data) {
-                router.push(router.asPath)
-                console.log('Added tracks to playlist!');
-            }).catch(err => console.log(err))
+            .then(() => {
+                router.push(router.asPath);
+                setPopMssgType({ operation: 'SAVE', type: track?.name })
+            }).catch(err => {
+                console.log(err);
+                setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message })
+            })
     }
 
 
@@ -78,13 +84,9 @@ function PlaylistInfo({ playlist }) {
     }, [session, setPlaylist, playlist]);
 
     useEffect(() => {
-        spotifyApi.getMe()
-            .then(function (data) {
-                console.log('Some information about the authenticated user', data.body);
-            }, function (err) {
-                console.log('Something went wrong!', err);
-            });
-    }, [spotifyApi])
+        // checks if a user just removed a song from playlist on first render and display popUpMessage notification
+        if (popMssgType) popUpMssgAnimation(setPopMssgType)
+    }, [popMssgType, setPopMssgType])
     return (
         <div
             onScroll={(e) => playlist?.owner?.id === session?.user?.username && hasScrollReachedBottom(e, searchInput, foundTracks, '.PLAYLIST', debounceduserSearchInput)}
@@ -93,7 +95,7 @@ function PlaylistInfo({ playlist }) {
             <section className={`PLAYLIST-SECTION-1 flex flex-col items-center space-x-7 bg-gradient-to-b ${color} to-black  text-white p-8 md:flex-row md:items-end md:h-80`}>
                 <div
                     onClick={() => playlist?.owner?.id === session?.user?.username && setIsModalOpen({ type: 'EDIT-PLAYLIST', open: true })}
-                    className=' group relative shadow-2xl flex justify-center items-center h-[179px] min-w-[179px] bg-[#282828] cursor-pointer '>
+                    className=' group relative shadow-2xl flex justify-center items-center h-[200px] min-w-[200px] max-w-[200px] bg-[#282828] cursor-pointer '>
                     <img
                         className='h-full object-cover'
                         src={playlist?.images[0]?.url}
@@ -117,8 +119,8 @@ function PlaylistInfo({ playlist }) {
                     <div
                         onClick={() => playlist?.owner?.id === session?.user?.username && setIsModalOpen({ type: 'EDIT-PLAYLIST', open: true })}
                         className={`${playlist?.owner?.id === session?.user?.username && 'cursor-pointer'}`}>
-                        <h1 className='text-1xl md:text-5xl xl:text-6xl font-bold'>{playlist?.name}</h1>
-                        <p className='text-sm mt-4 text-gray-400'>{playlist?.description}</p>
+                        <h1 className='text-1xl md:text-xl lg:text-5xl xl:text-6xl font-bold'>{playlist?.name}</h1>
+                        <p className='text-xs md:text-xs lg:text-sm mt-4 text-gray-400'>{playlist?.description}</p>
                     </div>
                     <span className='text-sm font-light hover:underline '>
                         <Link href={playlist?.owner?.external_urls?.spotify}>

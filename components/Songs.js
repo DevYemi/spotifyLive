@@ -10,6 +10,8 @@ import { currentTrackIdState, isPlayingState } from '../globalState/songAtom'
 import { useSession } from 'next-auth/react'
 import useSongInfo from '../customHooks/useSongInfo'
 import { popMssgTypeState } from '../globalState/popMessageAtom'
+import Button from '@mui/material/Button';
+import { isModalOpenState } from '../globalState/displayModalAtom'
 
 function Songs() {
     // console.log('SONGS');
@@ -17,6 +19,7 @@ function Songs() {
     const spotifyApi = useSpotify();
     const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
     const playlist = useRecoilValue(playlistState);  // Atom global state
+    const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
     const setPopMssgType = useSetRecoilState(popMssgTypeState) // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
     const [{ parentId }, setCurrentTrackId] = useRecoilState(currentTrackIdState); // Atom global state
@@ -27,32 +30,35 @@ function Songs() {
         if (session && playlist?.id) {
 
             spotifyApi.areFollowingPlaylist(session?.user?.username, playlist?.id, [`${session?.user?.username}`])
-                .then(function (data) {
+                .then(data => {
                     setIsUserFollowingPlaylist(data?.body[0])
-                }).catch((err) => console.log(err))
+                }).catch((err) => {
+                    console.log(err);
+                    setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message })
+                })
 
         }
 
 
-    }, [spotifyApi, playlist, session])
+    }, [spotifyApi, playlist, session, setIsModalOpen])
 
     return (
         <div className=''>
-            <div className='flex px-6 items-center space-x-5 mb-5'>
+            <div className='flex px-6 items-center mb-5'>
                 {
                     (isPlaying && playlist?.id === parentId) ?
-                        <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' />
+                        <Button><PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying, setIsModalOpen)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' /></Button>
                         :
-                        <PlayIcon onClick={() => startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, spotifyApi)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' />
+                        <Button><PlayIcon onClick={() => startPlayingListOfSongs(playlist, 0, setCurrentTrackId, setIsPlaying, parentId, setIsModalOpen, spotifyApi)} className='h-[4rem] w-[4rem] text-[#1ED760] cursor-pointer' /></Button>
                 }
                 {
                     playlist?.owner?.id !== session?.user?.username &&
                     <>
                         {
                             isUserFollowingPlaylist ?
-                                <HeartIcon onClick={() => toggleFollowingPlaylist("UN-FOL", playlist, setIsUserFollowingPlaylist, setPopMssgType, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                <Button><HeartIcon onClick={() => toggleFollowingPlaylist("UN-FOL", playlist, setIsUserFollowingPlaylist, setPopMssgType, setIsModalOpen, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' /></Button>
                                 :
-                                <HeartIconOutline onClick={() => toggleFollowingPlaylist("FOL", playlist, setIsUserFollowingPlaylist, setPopMssgType, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' />
+                                <Button><HeartIconOutline onClick={() => toggleFollowingPlaylist("FOL", playlist, setIsUserFollowingPlaylist, setPopMssgType, setIsModalOpen, spotifyApi)} className='h-10 w-10 text-[#1ED760] cursor-pointer' /></Button>
                         }
 
 
@@ -60,7 +66,7 @@ function Songs() {
 
                 }
 
-                <DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' />
+                <Button><DotsHorizontalIcon className='h-6 w-6 text-gray-500 cursor-pointer' /></Button>
             </div>
 
             <div className='px-5 flex flex-col space-y-1 md:px-8'>

@@ -11,6 +11,8 @@ import { createNewPlaylist } from '../utils';
 import useSpotify from '../customHooks/useSpotify';
 import useSongInfo from '../customHooks/useSongInfo';
 import { currentTrackIdState, isPlayingState } from '../globalState/songAtom';
+import Button from '@mui/material/Button';
+import { isModalOpenState } from '../globalState/displayModalAtom';
 
 
 function TopTracks({ topTracks }) {
@@ -21,6 +23,7 @@ function TopTracks({ topTracks }) {
     const isPlaying = useRecoilValue(isPlayingState); // Atom global state
     const { parentId } = useRecoilValue(currentTrackIdState); // Atom global state
     const setIsNewPlaylistCreated = useSetRecoilState(isNewPlaylistCreatedState); // Atom global state
+    const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
     const [topTrackIsCreatePlaylist, setTopTrackIsCreatePlaylist] = useRecoilState(topTrackIsCreatePlaylistState); // keeps state if a user clicked on the create playlist icon
     const [selectedTracks, setSelectedTracks] = useRecoilState(topTrackSelectedState); // keeps state of all the selected playlist by the user
     const userPlaylists = useRecoilValue(userPlaylistsState); // Atom Global State 
@@ -31,7 +34,8 @@ function TopTracks({ topTracks }) {
     const handleCreatePlaylistClick = async () => {
         setSelectedTracks([]);
         setIsNewPlaylistCreated(true);
-        createNewPlaylist(selectedTracks, router, userPlaylists, spotifyApi);
+        setTopTrackIsCreatePlaylist(false);
+        createNewPlaylist(selectedTracks, router, userPlaylists, setIsModalOpen, spotifyApi);
     }
     useEffect(() => {
         // set Top Tracks Lists to global state
@@ -62,12 +66,15 @@ function TopTracks({ topTracks }) {
                         </a>
                     </Link>
                 </div>
-                <div
+                <Button
                     onClick={() => { setTopTrackIsCreatePlaylist(!topTrackIsCreatePlaylist); }}
-                    className='flex items-center justify-center mx-auto my-10 w-fit py-3 px-2 rounded-md bg-[#111827] cursor-pointer hover:bg-[#1e2636]'>
+                    className='flex items-center justify-center mx-auto my-10 w-fit py-3 px-2 rounded-md bg-[#111827] cursor-pointer hover:bg-[#1e2636]'
+                >
                     <ClipboardListIcon className='h-5 w-5 text-gray-300' />
                     <p className='ml-3 text-sm text-gray-300'>{topTrackIsCreatePlaylist ? 'Cancel' : 'Create a Playlist From Your Favourite Tracks'}</p>
-                </div>
+
+                </Button>
+
                 <div className='px-8 flex flex-col space-y-1'>
                     <div className='grid px-5 uppercase text-sm font-bold grid-cols-2 text-gray-500 pt-4 pb-1 border-b border-gray-600'>
                         <p className=''># Title</p>
@@ -98,9 +105,13 @@ function TopTracks({ topTracks }) {
                 </div>
                 {
                     selectedTracks.length > 0 &&
-                    <span
+                    <Button
                         onClick={handleCreatePlaylistClick}
-                        className='fixed p-5 text-gray-300 text-xs rounded-full bg-[#1ED760] w-fit bottom-[109px] right-5'>Create</span>
+                        className='fixed p-5 text-gray-300 text-xs rounded-full bg-[#1ED760] w-fit bottom-[109px] right-5 hover:bg-[#1ED760]'
+                    >
+                        Create
+                    </Button>
+
                 }
 
             </div>

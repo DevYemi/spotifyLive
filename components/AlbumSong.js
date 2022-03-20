@@ -9,11 +9,13 @@ import { convertMsToTime } from '../lib/time';
 import { handlePlayAndPauseOfPlayer, playSong } from '../utils';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import Loading from './common/Loading'
+import { isModalOpenState } from '../globalState/displayModalAtom';
 
 function AlbumSong({ order, track, songInfo, isPlaying, albumIsCreatePlaylist, parentId, setSelectedTracks, selectedTracks, albumDetails }) {
     const spotifyApi = useSpotify();
     const setIsPlaying = useSetRecoilState(isPlayingState); // Atom global state
     const setCurrentTrackId = useSetRecoilState(currentTrackIdState); // Atom global state
+    const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
     const [isTrackSelected, setIsTrackSelected] = useState(false); // keeps state if a track has been seleceted for a playlist
 
     const handleTrackAddToPlaylist = () => {
@@ -50,13 +52,13 @@ function AlbumSong({ order, track, songInfo, isPlaying, albumIsCreatePlaylist, p
                                     color={"#1ED760"}
                                     style={"group-hover:hidden"}
                                 />
-                                <p onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)}><PauseIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
+                                <p onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying, setIsModalOpen)}><PauseIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
                             </>
                             :
                             //else display list-index and playIcon
                             <>
                                 <p className='group-hover:hidden'>{order + 1}</p>
-                                <p onClick={() => playSong(track, setCurrentTrackId, setIsPlaying, albumDetails?.id, parentId, spotifyApi)}><PlayIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
+                                <p onClick={() => playSong(track, setCurrentTrackId, setIsPlaying, albumDetails?.id, parentId, setIsModalOpen, spotifyApi)}><PlayIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
                             </>
                 }
 

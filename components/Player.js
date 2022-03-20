@@ -9,6 +9,7 @@ import { debounce } from "lodash"
 import { FastForwardIcon, PauseIcon, PlayIcon, RewindIcon, SwitchHorizontalIcon, VolumeOffIcon, VolumeUpIcon } from '@heroicons/react/outline';
 import { handlePlayAndPauseOfPlayer, handleTrackSkips, toggleTrackRepeat } from '../utils';
 import { playlistState } from '../globalState/playlistsAtom';
+import { isModalOpenState } from '../globalState/displayModalAtom';
 
 function Player() {
     // console.log('pLAYER');
@@ -16,6 +17,7 @@ function Player() {
     const { data: session } = useSession(); // get the current logged in user session
     const setCurrentTrackId = useSetRecoilState(currentTrackIdState); // Atom global state
     const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState); // Atom global state
+    const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
     const [volume, setVolume] = useState(50); // keeps state for the current volume range the user is on
     const [isTrackOnRepeat, setIsTrackOnRepeat] = useState(false); // keeps state if the current playing track is on repeat
     const songInfo = useSongInfo(); // custom hook that gets the info of the current playing song
@@ -24,7 +26,9 @@ function Player() {
     const debouncedAdjustVolume = useCallback((volume) => {
         // debounced function created with lodash
         const debouncedReturnedFromLodash = debounce((volume) => {
-            spotifyApi.setVolume(volume).catch(err => console.log(err?.body));
+            spotifyApi.setVolume(volume).catch(err => {
+                console.log(err?.body);
+            });
 
         }, 500);
         debouncedReturnedFromLodash(volume);
@@ -37,14 +41,9 @@ function Player() {
         }
     }, [volume, debouncedAdjustVolume]);
 
-    // useEffect(() => {
-    //     // on every first render set the volume to 50
-    //     if (spotifyApi.getAccessToken()) {
-    //         setVolume(50);
-    //     }
-    // }, [spotifyApi, session,])
+
     return (
-        <div className='text-white h-24 bg-gradient-to-b  from-black to-gray-900 flex items-center text-xs md:text-base md:px-8 md:justify-between'>
+        <div className='text-white h-24 bg-gradient-to-b pt-[1.5em] from-black to-gray-900 flex items-center text-xs md:text-base md:px-8 md:justify-between'>
             {/* LEFT */}
             <div className='flex items-center space-x-4 max-w-[80px] md:max-w-[100%]'>
                 <img
@@ -59,21 +58,21 @@ function Player() {
             {/* CENTER */}
             <div className='flex flex-1 items-center justify-evenly md:max-w-[300px]'>
                 <SwitchHorizontalIcon
-                    onClick={() => toggleTrackRepeat(isTrackOnRepeat, setIsTrackOnRepeat, spotifyApi)}
+                    onClick={() => toggleTrackRepeat(isTrackOnRepeat, setIsTrackOnRepeat, setIsModalOpen, spotifyApi)}
                     className={`button hover:scale-125 ${isTrackOnRepeat ? "text-[#1ED760]" : ""}`} />
                 <RewindIcon
-                    onClick={() => handleTrackSkips("PREV", setCurrentTrackId, spotifyApi)}
+                    onClick={() => handleTrackSkips("PREV", setCurrentTrackId, setIsModalOpen, spotifyApi)}
                     className='button hover:scale-125' />
 
                 {
                     isPlaying ? (
-                        <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='button hover:scale-125 w-10 h-10' />
+                        <PauseIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying, setIsModalOpen)} className='button hover:scale-125 w-10 h-10' />
                     ) : (
-                        <PlayIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)} className='button hover:scale-125 w-10 h-10' />
+                        <PlayIcon onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying, setIsModalOpen)} className='button hover:scale-125 w-10 h-10' />
                     )
                 }
                 <FastForwardIcon
-                    onClick={() => handleTrackSkips("NEXT", setCurrentTrackId, spotifyApi)}
+                    onClick={() => handleTrackSkips("NEXT", setCurrentTrackId, setIsModalOpen, spotifyApi)}
                     className='button hover:scale-125' />
             </div>
 

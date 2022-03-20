@@ -32,7 +32,6 @@ export default function MultipleSelectCheckmarks({ addTracksToPlaylist, addTrack
 
     const handleChange = (event) => {
         const { target: { value } } = event;
-        console.log(value);
         setSelectedPlaylist(value);
     };
 

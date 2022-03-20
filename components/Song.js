@@ -12,14 +12,18 @@ import Loading from './common/Loading';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import ExplicitIcon from '@mui/icons-material/Explicit';
+import { popMssgTypeState } from '../globalState/popMessageAtom';
+import { isModalOpenState } from '../globalState/displayModalAtom';
 
 function Song({ order, track, addedAt, type, songInfo, isPlaying, parentId, ...props }) {
-    console.log('SONG');
+    // console.log('SONG');
     const { data: session } = useSession();  // get the current logged in user session
     const spotifyApi = useSpotify();
     const playlist = useRecoilValue(playlistState);  // Atom global state
     const setIsPlaying = useSetRecoilState(isPlayingState); // Atom global state
+    const setPopMssgType = useSetRecoilState(popMssgTypeState) // Atom global state
     const setCurrentTrackId = useSetRecoilState(currentTrackIdState); // Atom global state
+    const setIsModalOpen = useSetRecoilState(isModalOpenState); //Atom global state
     const [isTrackSelected, setIsTrackSelected] = useState(false); // keeps state if a track has been seleceted for a playlist
     const router = useRouter();
 
@@ -66,13 +70,13 @@ function Song({ order, track, addedAt, type, songInfo, isPlaying, parentId, ...p
                                     color={"#1ED760"}
                                     style={"group-hover:hidden"}
                                 />
-                                <p onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying)}><PauseIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
+                                <p onClick={() => handlePlayAndPauseOfPlayer(spotifyApi, setIsPlaying, setIsModalOpen)}><PauseIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
                             </>
                             :
                             //else display list-index and playIcon
                             <>
                                 <p className='group-hover:hidden'>{order + 1}</p>
-                                <p onClick={() => playSong(track, setCurrentTrackId, setIsPlaying, playlist?.id, parentId, spotifyApi)}><PlayIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
+                                <p onClick={() => playSong(track, setCurrentTrackId, setIsPlaying, playlist?.id, parentId, setIsModalOpen, spotifyApi)}><PlayIcon className={`w-5 h-5 hidden group-hover:block`} /></p>
                             </>
                 }
 
@@ -115,7 +119,7 @@ function Song({ order, track, addedAt, type, songInfo, isPlaying, parentId, ...p
                         // if its a playlist and playlist is for user, be able to remove track
                         (type === 'playlist' && playlist?.owner?.id === session?.user?.username) && <span
                             title='Remove Track'
-                            onClick={() => removeTrackFromPlaylist(order, playlist, router, spotifyApi)}
+                            onClick={() => removeTrackFromPlaylist(order, playlist, router, setPopMssgType, setIsModalOpen, spotifyApi)}
                             className=' hidden group-hover:block cursor-pointer'
                         >
                             <XIcon className='w-4 h-4 ml-4' /></span>

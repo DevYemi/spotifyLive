@@ -3,6 +3,7 @@ import { debounce } from 'lodash';
 import { useSession } from 'next-auth/react';
 import React, { useEffect } from 'react'
 import useSpotify from '../../customHooks/useSpotify';
+import Button from '@mui/material/Button';
 
 function SearchBox({ parentClass, foundTracks, searchInput, setSearchLoading, setFoundTracks, debounceduserSearchInput }) {
     const { data: session } = useSession();  // get the current logged in user session
@@ -25,7 +26,10 @@ function SearchBox({ parentClass, foundTracks, searchInput, setSearchLoading, se
                     .then(function (data) {
                         setFoundTracks(data?.body?.tracks)
                         setSearchLoading(false)
-                    }).catch(err => console.log(err))
+                    }).catch(err => {
+                        console.log(err);
+                        setIsModalOpen({ type: 'ERROR', open: true, reason: err?.body?.error?.reason, message: err?.body?.error?.message })
+                    })
             } else if (searchType === 'next') {
                 if (!prevSearch?.next) return
                 try {
@@ -70,9 +74,12 @@ function SearchBox({ parentClass, foundTracks, searchInput, setSearchLoading, se
                     <SearchIcon className='w-5 h-5 absolute text-[#6a6767] top-[11px] left-[5px] ' />
                 </div>
             </div>
-            <XIcon
-                onClick={handleXIconClick}
-                className='h-6 w-6 cursor-pointer md:h-10 md:w-10' />
+            <Button className='text-white'>
+                <XIcon
+                    onClick={handleXIconClick}
+                    className='h-6 w-6 cursor-pointer md:h-10 md:w-10' />
+            </Button>
+
         </div>
     )
 }

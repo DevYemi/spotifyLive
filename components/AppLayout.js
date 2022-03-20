@@ -7,6 +7,7 @@ import { preventRoutingPageLoadingState, routingPageLoadingState } from '../glob
 import { useRouter } from 'next/router';
 import PageLoading from './PageLoading'
 import PopUpMessage from './common/PopUpMessage'
+import DisplayModal from './appModals/DisplayModal'
 
 function AppLayout({ children }) {
     const { data: session } = useSession();  // get the current logged in user session
@@ -54,6 +55,7 @@ function AppLayout({ children }) {
                 <div className='sticky bottom-0'>
                     <Player />
                 </div>
+                <DisplayModal />
             </div>
         )
     } else {

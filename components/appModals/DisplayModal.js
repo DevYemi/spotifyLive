@@ -3,6 +3,7 @@ import React from 'react'
 import { useRecoilState } from 'recoil';
 import { isModalOpenState } from '../../globalState/displayModalAtom';
 import EditPlaylistModal from './EditPlaylistModal'
+import ErrorModal from './ErrorModal'
 
 
 function DisplayModal() {
@@ -11,11 +12,14 @@ function DisplayModal() {
     const handleModalClose = () => {
         setIsModalOpen({ type: '', open: false })
     }
-    if (isModalOpen.type === 'EDIT-PLAYLIST') {
+    if (isModalOpen.open && isModalOpen.type === 'EDIT-PLAYLIST') {
         return (
             <EditPlaylistModal handleModalClose={handleModalClose} />
         )
-    } else return <></>
+    } else if (isModalOpen.open && isModalOpen.type === 'ERROR') {
+        return <ErrorModal handleModalClose={handleModalClose} />
+    }
+    else return <></>
 
 }
 
