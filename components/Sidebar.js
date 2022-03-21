@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image'
 import { HomeIcon, SearchIcon, RssIcon, VolumeUpIcon } from '@heroicons/react/outline'
 import { BellIcon, PauseIcon, PlusIcon } from '@heroicons/react/solid'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import useSpotify from '../customHooks/useSpotify'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { isNewPlaylistCreatedState, userPlaylistsState } from '../globalState/playlistsAtom'
@@ -117,6 +117,12 @@ function Sidebar() {
                         <RssIcon className='h-4 w-4 text-[#159643]' />
                     </span>
                     <p>Your episodes</p>
+                </Button>
+                <Button onClick={signOut} className='flex items-center text-gray-500 space-x-2 hover:text-white text-[13px]'>
+                    <span className='p-1 rounded-sm bg-[#004638] '>
+                        <RssIcon className='h-4 w-4 text-[#159643]' />
+                    </span>
+                    <p>SIGN OUT</p>
                 </Button>
                 <hr className='border-t-[0.1px] border-gray-900 ' />
             </section>
