@@ -15,6 +15,7 @@ export default NewReleaseScreen
 export async function getServerSideProps(context) {
     try {
         const session = await getSession(context); // get session
+        if (!session) return { redirect: { destination: '/login', permanent: false, } } // Redirect to login page if there is no user
         spotifyApi.setAccessToken(session.user.accessToken); // set accessToken to spotify api 
         var data = await spotifyApi.getNewReleases({ limit: 50, offset: 0, country: 'NG' }).catch(err => console.log(err));
 

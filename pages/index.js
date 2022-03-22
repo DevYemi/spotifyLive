@@ -1,9 +1,19 @@
 import { EyeIcon, PlayIcon } from "@heroicons/react/solid";
 import HeaderNav from '../components/common/HeaderNav'
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 
-const Home = () => {
+function Home() {
+  const { data: session } = useSession();  // get the current logged in user session
+  const router = useRouter();
+
+  useEffect(() => {
+    // redirect user to login page if there is no user
+    if (!session) return router.push('/login');
+  }, [session, router])
 
 
   return (

@@ -20,6 +20,7 @@ export default PlaylistInfoScreen
 export async function getServerSideProps(context) {
     try {
         const session = await getSession(context); // get session
+        if (!session) return { redirect: { destination: '/login', permanent: false, } } // Redirect to login page if there is no user
         const { params: { playlistId } } = context; // get query Id
         spotifyApi.setAccessToken(session.user.accessToken); // set accessToken to spotify api
         var data = await spotifyApi.getPlaylist(playlistId).catch(err => console.log(err)) // get data from spotify api    

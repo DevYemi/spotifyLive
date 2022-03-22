@@ -92,7 +92,7 @@ function Sidebar() {
                 <hr className='border-t-[0.1px] border-gray-900 ' />
                 <Button
                     onClick={handleCreatePlaylistClick}
-                    className='flex text-gray-500 items-center space-x-2 hover:text-white text-[13px]'>
+                    className='flex !text-gray-500 items-center space-x-2 hover:text-white text-[13px]'>
                     <span className='p-1 rounded-sm bg-gray-300'>
                         <PlusIcon className='h-4 w-4 text-gray-900 ' />
                     </span>
@@ -102,7 +102,7 @@ function Sidebar() {
                     <Link href='/new-release'>
                         <a
                             onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }}
-                            className='flex text-gray-500 items-center space-x-2 hover:text-white text-[13px]'>
+                            className='flex !text-gray-500 items-center space-x-2 hover:text-white text-[13px]'>
                             <span className='p-1 rounded-sm bg-gradient-to-br from-[#280887] to-[#6B8278] '>
                                 <BellIcon className='h-4 w-4 text-white' />
                             </span>
@@ -118,7 +118,7 @@ function Sidebar() {
                     </span>
                     <p>Your episodes</p>
                 </Button>
-                <Button onClick={signOut} className='flex items-center text-gray-500 space-x-2 hover:text-white text-[13px]'>
+                <Button onClick={signOut} className='flex items-center !text-gray-500 space-x-2 hover:text-white text-[13px]'>
                     <span className='p-1 rounded-sm bg-[#004638] '>
                         <RssIcon className='h-4 w-4 text-[#159643]' />
                     </span>
@@ -133,10 +133,10 @@ function Sidebar() {
 
                         <Button
                             key={`${playlist?.id} ${i}`}
-                            className="flex justify-between w-full items-center text-[12px] text-gray-500 ">
+                            className="flex justify-between w-full items-center text-[12px] !text-gray-500 ">
                             <Link href={`/playlist/${playlist?.id}`}>
                                 <a onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen); }}
-                                    className="cursor-pointer text-left truncate hover:text-white flex-[1] ">
+                                    className="cursor-pointer text-left text-gray-500 truncate hover:text-white flex-[1] ">
                                     {playlist?.name}
                                 </a>
                             </Link>

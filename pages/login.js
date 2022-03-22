@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react'
-import { getProviders, signIn } from 'next-auth/react'
+import { getProviders, getSession, signIn } from 'next-auth/react'
 
 function Login({ providers }) {
     return (
@@ -21,7 +21,9 @@ function Login({ providers }) {
 
 export default Login
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+    const session = await getSession(context); // get session
+    if (session) return { redirect: { destination: '/', permanent: false, } } // Redirect to home page if there is a user
     const providers = await getProviders();
     return {
         props: {

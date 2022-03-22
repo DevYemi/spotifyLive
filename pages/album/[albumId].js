@@ -14,8 +14,8 @@ export default AlbumScreen
 export async function getServerSideProps(context) {
     try {
         const { params: { albumId } } = context
-
         const session = await getSession(context); // get session
+        if (!session) return { redirect: { destination: '/login', permanent: false, } } // Redirect to login page if there is no user
         spotifyApi.setAccessToken(session?.user?.accessToken); // set accessToken to spotify api 
         var data = await spotifyApi.getAlbum(albumId).catch(err => console.log(err))
     } catch (err) {

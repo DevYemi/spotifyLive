@@ -13,8 +13,8 @@ export default TopArtistsScreen
 export async function getServerSideProps(context) {
     try {
         const { params: { time_range } } = context
-
         const session = await getSession(context); // get session
+        if (!session) return { redirect: { destination: '/login', permanent: false, } } // Redirect to login page if there is no user
         spotifyApi.setAccessToken(session.user.accessToken); // set accessToken to spotify api 
         var data = await spotifyApi.getMyTopArtists({ time_range, limit: 50 }).catch(err => console.log(err))
     } catch (err) {
