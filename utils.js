@@ -200,7 +200,7 @@ export const createNewPlaylist = (selectedTracks, router, userPlaylists, setIsMo
             if (selectedTracks?.length < 1) return router.push(`/playlist/${newCreatedPlaylistId}`)
 
             spotifyApi.addTracksToPlaylist(newCreatedPlaylistId, selectedTracksURIs)
-                .then(function (data) {
+                .then(() => {
                     // then add the tracks selceted
                     router.push(`/playlist/${newCreatedPlaylistId}`)
                 }).catch(err => {

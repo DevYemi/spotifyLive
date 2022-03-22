@@ -10,10 +10,6 @@ function NotFound() {
     const { data: session } = useSession();  // get the current logged in user session
     const router = useRouter();
 
-    useEffect(() => {
-        // redirect user to login page if there is no user
-        if (!session) return router.push('/login');
-    }, [session, router])
     return (
         <div className='404-WR flex-grow scrollbar-style pb-[1em] text-white overflow-scroll h-[90vh]'>
             <HeaderNav color={''} gsapTrigger={''} gsapScroller={''} />
