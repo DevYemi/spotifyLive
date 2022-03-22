@@ -1,19 +1,12 @@
 import { EyeIcon, PlayIcon } from "@heroicons/react/solid";
 import HeaderNav from '../components/common/HeaderNav'
 import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { getSession } from "next-auth/react";
+
 
 
 function Home() {
-  const { data: session } = useSession();  // get the current logged in user session
-  const router = useRouter();
 
-  useEffect(() => {
-    // redirect user to login page if there is no user
-    if (!session) return router.push('/login');
-  }, [session, router])
 
 
   return (
@@ -48,6 +41,20 @@ function Home() {
 }
 
 export default Home
+
+export async function getServerSideProps(context) {
+  try {
+    const session = await getSession(context); // get session
+    if (!session) return { redirect: { destination: '/login', permanent: false, } } // Redirect to login page if there is no user
+  } catch (err) {
+    console.log(err)
+  }
+  return {
+    props: {
+      data: null
+    }
+  }
+}
 
 
 

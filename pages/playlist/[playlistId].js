@@ -10,8 +10,7 @@ import NotFound from '../404'
 
 function PlaylistInfoScreen({ playlist }) {
 
-    if (playlist) return <PlaylistInfo playlist={playlist} />
-    return <NotFound />
+    return <PlaylistInfo playlist={playlist} />
 
 }
 
@@ -23,7 +22,8 @@ export async function getServerSideProps(context) {
         if (!session) return { redirect: { destination: '/login', permanent: false, } } // Redirect to login page if there is no user
         const { params: { playlistId } } = context; // get query Id
         spotifyApi.setAccessToken(session.user.accessToken); // set accessToken to spotify api
-        var data = await spotifyApi.getPlaylist(playlistId).catch(err => console.log(err)) // get data from spotify api    
+        var data = await spotifyApi.getPlaylist(playlistId).catch(err => console.log(err)) // get data from spotify api
+        if (!data?.body) return { notFound: true } // if data doesnt exist throw a 404 page
     } catch (err) {
         console.log(err)
     }

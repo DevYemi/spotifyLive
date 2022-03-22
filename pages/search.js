@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { useSession } from 'next-auth/react'
+import { getSession } from 'next-auth/react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import HeaderNav from '../components/common/HeaderNav'
 import Loading from '../components/common/Loading'
@@ -11,18 +10,14 @@ import { hasScrollReachedBottom } from '../utils'
 
 
 function SearchScreen() {
-    const { data: session } = useSession();  // get the current logged in user session
-    const router = useRouter();
+
     const [searchLoading, setSearchLoading] = useState(false) // keeps loading state
     const [foundTracks, setFoundTracks] = useState({}); // keeps state of the found Tracks
     const searchDiv = useRef() // search Div for new tracks
     const searchInput = useRef() // search Input for new tracks
     let debounceduserSearchInput = useRef() // keeps debounce function for TracksearchInput
 
-    useEffect(() => {
-        // redirect user to login page if there is no user
-        if (!session) return router.push('/login');
-    }, [session, router])
+
 
     useEffect(() => {
         // reset this values on first render
@@ -89,3 +84,17 @@ function SearchScreen() {
 }
 
 export default SearchScreen
+
+export async function getServerSideProps(context) {
+    try {
+        const session = await getSession(context); // get session
+        if (!session) return { redirect: { destination: '/login', permanent: false, } } // Redirect to login page if there is no user
+    } catch (err) {
+        console.log(err)
+    }
+    return {
+        props: {
+            data: null
+        }
+    }
+}

@@ -17,7 +17,8 @@ export async function getServerSideProps(context) {
         const session = await getSession(context); // get session
         if (!session) return { redirect: { destination: '/login', permanent: false, } } // Redirect to login page if there is no user
         spotifyApi.setAccessToken(session.user.accessToken); // set accessToken to spotify api 
-        var data = await spotifyApi.getMyTopTracks({ time_range, limit: 50 }).catch(err => console.log(err))
+        var data = await spotifyApi.getMyTopTracks({ time_range, limit: 50 }).catch(err => console.log(err));
+        if (!data?.body) return { notFound: true } // if data doesnt exist throw a 404 page
     } catch (err) {
         console.log(err)
     }
