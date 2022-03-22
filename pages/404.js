@@ -1,10 +1,19 @@
 import { ExclamationCircleIcon } from '@heroicons/react/solid'
 import { Button } from '@mui/material'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import React from 'react'
+import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
 import HeaderNav from '../components/common/HeaderNav'
 
 function NotFound() {
+    const { data: session } = useSession();  // get the current logged in user session
+    const router = useRouter();
+
+    useEffect(() => {
+        // redirect user to login page if there is no user
+        if (!session) return router.push('/login');
+    }, [session, router])
     return (
         <div className='404-WR flex-grow scrollbar-style pb-[1em] text-white overflow-scroll h-[90vh]'>
             <HeaderNav color={''} gsapTrigger={''} gsapScroller={''} />
