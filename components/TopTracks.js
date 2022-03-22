@@ -107,7 +107,7 @@ function TopTracks({ topTracks }) {
                     selectedTracks.length > 0 &&
                     <Button
                         onClick={handleCreatePlaylistClick}
-                        className='fixed p-5 text-gray-300 text-xs rounded-full bg-[#1ED760] w-fit bottom-[109px] right-5 hover:bg-[#1ED760]'
+                        className='!fixed !p-5 !text-gray-300 !text-xs !rounded-full !bg-[#1ED760] !w-fit !bottom-[109px] !right-5 hover:!bg-[#1ED760]'
                     >
                         Create
                     </Button>

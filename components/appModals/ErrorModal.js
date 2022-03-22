@@ -35,7 +35,7 @@ export default function ErrorModal({ handleModalClose }) {
                         <div >
                             <p>Spotify Said: {isModalOpen?.reason}</p>
                             <p className='my-5'>Developer Said: You need to either have your spotify app playling a song or open a spotify web player and start playling a song to be able to control music playback from this third party app</p>
-                            <Button onClick={handleModalClose} className='bg-primary block m-auto text-white hover:bg-primary'>
+                            <Button onClick={handleModalClose} className='!bg-primary !block !m-auto !text-white hover:!bg-primary'>
                                 <Link href='https://www.spotify.com/'>
                                     <a target="_blank">Okay</a>
                                 </Link>
@@ -61,7 +61,9 @@ export default function ErrorModal({ handleModalClose }) {
                             <p>ERROR-REASON: {isModalOpen?.reason}</p>
                             <p>ERROR-MESSAGE: {isModalOpen?.message}</p>
                         </div>
-
+                        <Button onClick={handleModalClose} className='!bg-primary !block !m-auto !text-white hover:!bg-primary'>
+                            Okay
+                        </Button>
                     </Box>
                 </Modal>
             </div>
@@ -79,7 +81,7 @@ export default function ErrorModal({ handleModalClose }) {
                     <Box className='text-gray-500' sx={style}>
                         <div>
                             <p>An Error occurred while trying to connect with the spotify server, please check your internet connection as this might be a connectivity issue</p>
-                            <Button onClick={handleModalClose} className='bg-primary block m-auto text-white hover:bg-primary'>
+                            <Button onClick={handleModalClose} className='!bg-primary !block !m-auto !text-white hover:!bg-primary'>
                                 Okay
                             </Button>
                         </div>
