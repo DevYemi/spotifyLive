@@ -77,7 +77,7 @@ function Sidebar() {
                     </Link>
                 </Button>
 
-                <Button className='block'>
+                <Button className='!block'>
                     <Link href='/search'>
                         <a
                             onClick={() => { sidebarAnimation('CLOSE', setIsSidebarOpen) }}
@@ -112,7 +112,7 @@ function Sidebar() {
                 </Button>
 
 
-                <Button className='flex items-center text-gray-500 space-x-2 hover:text-white text-[13px]'>
+                <Button className='flex items-center !text-gray-500 space-x-2 hover:text-white text-[13px]'>
                     <span className='p-1 rounded-sm bg-[#004638] '>
                         <RssIcon className='h-4 w-4 text-[#159643]' />
                     </span>

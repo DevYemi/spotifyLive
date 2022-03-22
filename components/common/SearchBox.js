@@ -74,7 +74,7 @@ function SearchBox({ parentClass, foundTracks, searchInput, setSearchLoading, se
                     <SearchIcon className='w-5 h-5 absolute text-[#6a6767] top-[11px] left-[5px] ' />
                 </div>
             </div>
-            <Button className='text-white'>
+            <Button className='!text-white'>
                 <XIcon
                     onClick={handleXIconClick}
                     className='h-6 w-6 cursor-pointer md:h-10 md:w-10' />

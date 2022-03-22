@@ -68,7 +68,7 @@ function TopTracks({ topTracks }) {
                 </div>
                 <Button
                     onClick={() => { setTopTrackIsCreatePlaylist(!topTrackIsCreatePlaylist); }}
-                    className='flex items-center justify-center mx-auto my-10 w-fit py-3 px-2 rounded-md bg-[#111827] cursor-pointer hover:bg-[#1e2636]'
+                    className='!flex !items-center !justify-center !mx-auto !my-10 !w-fit !py-3 !px-2 !rounded-md !bg-[#111827] !cursor-pointer hover:!bg-[#1e2636]'
                 >
                     <ClipboardListIcon className='h-5 w-5 text-gray-300' />
                     <p className='ml-3 text-sm text-gray-300'>{topTrackIsCreatePlaylist ? 'Cancel' : 'Create a Playlist From Your Favourite Tracks'}</p>
